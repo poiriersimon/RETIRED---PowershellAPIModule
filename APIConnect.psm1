@@ -77,9 +77,9 @@ Function Get-EWSDLL
     if((Test-Path $EWSDLLPath) -eq $False -and $AllowInstall -eq $True)
     {
         $request = Invoke-WebRequest -Uri https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951
-        Invoke-WebRequest -Uri $(($request.Links |where {$_.href -like "*.msi*"}).href) -Outfile .\EwsManagedApi.msi
+        Invoke-WebRequest -Uri $(($request.Links |where {$_.href -like "*.msi*"}).href) -Outfile $(Joint-path $PSScriptRoot "EwsManagedApi.msi")
         #Install MSI Based On : https://powershellexplained.com/2016-10-21-powershell-installing-msi-files/
-        $File = Get-item .\EwsManagedApi.msi
+        $File = Get-item $(Joint-path $PSScriptRoot "EwsManagedApi.msi")
         $DataStamp = get-date -Format yyyyMMddTHHmmss
         $logFile = '{0}-{1}.log' -f $file.fullname,$DataStamp
         $MSIArguments = @(
