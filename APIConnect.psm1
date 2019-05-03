@@ -378,7 +378,7 @@ Function Connect-Intune{
 # User + Impersonnation + App
 Function Connect-EWS
 {
-    
+    #
 }
 
 
