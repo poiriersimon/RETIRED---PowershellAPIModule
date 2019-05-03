@@ -376,7 +376,10 @@ Function Connect-Intune{
 
 ## Connect EWS
 # User + Impersonnation + App
-
+Function Connect-EWS
+{
+    
+}
 
 
 ## EXO without Click2Run
