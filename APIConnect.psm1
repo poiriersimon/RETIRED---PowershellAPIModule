@@ -62,6 +62,52 @@ Function Get-AzureADDLL
     Return $AzureDLL
 }
 
+Function Get-EWSDLL
+{
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $false)]
+        [Switch]
+        $AllowInstall,
+        [Parameter(Mandatory = $false)]
+        [System.String]
+        $EWSDLLPath = "C:\Program Files\Microsoft\Exchange\Web Services\2.2\Microsoft.Exchange.WebServices.dll"
+
+    )
+    if((Test-Path $EWSDLLPath) -eq $False -and $AllowInstall -eq $True)
+    {
+        $request = Invoke-WebRequest -Uri https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951
+        Invoke-WebRequest -Uri $(($request.Links |where {$_.href -like "*.msi*"}).href) -Outfile .\EwsManagedApi.msi
+        #Install MSI Based On : https://powershellexplained.com/2016-10-21-powershell-installing-msi-files/
+        $File = Get-item .\EwsManagedApi.msi
+        $DataStamp = get-date -Format yyyyMMddTHHmmss
+        $logFile = '{0}-{1}.log' -f $file.fullname,$DataStamp
+        $MSIArguments = @(
+            "/i"
+            ('"{0}"' -f $file.fullname)
+            "/qn"
+            "/norestart"
+            "/L*v"
+            $logFile
+        )
+        Start-Process "msiexec.exe" -ArgumentList $MSIArguments -Wait -NoNewWindow 
+        Start-sleep -Seconds 15
+        Remove-Item $file.FullName
+        if((Test-Path $EWSDLLPath) -eq $False){
+            Write-Error "Can't find EWS API. Please install it manually https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951"
+            return
+        }
+    }
+    Elseif((Test-Path $EWSDLLPath) -eq $False -and $AllowInstall -eq $False)
+    {
+        Write-Error "Can't find EWS API. Please install it manually https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951"
+        return
+    }
+    ##Load EWS DLL
+    Return $EWSDLLPath
+    
+}
+
 Function Get-CurrentUPN
 {
 	$UserPrincipalName = $NULL
@@ -130,12 +176,12 @@ Function Get-TenantLoginEndPoint
         $TenantName,
         [Parameter(Mandatory = $false)]
         [System.String]
-        [ValidateSet('Azure','O365')]
-        $LoginSource
+        [ValidateSet('MicrosoftOnline','EvoSTS')]
+        $LoginSource = "EvoSTS"
     )
     $TenantInfo = @{}
     $TenantName = Validate-TenantName -TenantName $TenantName
-    if($LoginSource -eq "Azure")
+    if($LoginSource -eq "EvoSTS")
     {
         $webrequest = Invoke-WebRequest -Uri https://login.windows.net/$($TenantName)/.well-known/openid-configuration
     }
@@ -163,9 +209,6 @@ function Get-OAuthHeaderUPN
       	[string]$redirectUri,
     [Parameter(Mandatory = $True)]
       	[string]$resourceAppIdURI,
-    [Parameter(Mandatory = $True)]
-    [ValidateSet('Azure','O365')]
-      	[string]$LoginSource,
     [Parameter(Mandatory = $False)]
       	[string]$UserPrincipalName
     )
@@ -175,7 +218,7 @@ function Get-OAuthHeaderUPN
     {
         $UserPrincipalName = Get-CurrentUPN
     }
-    $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName -LoginSource $LoginSource
+    $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName
 	#Azure DLL are sideloaded in a job to bypass potential conflict with other version
 	$job = Start-Job -ArgumentList $TenantName,$UserPrincipalName,$AzureADDLL,$clientId,$redirectUri,$resourceAppIdURI,$TenantInfo -ScriptBlock {
 		$TenantName = $args[0]
@@ -187,9 +230,7 @@ function Get-OAuthHeaderUPN
         $TenantInfo = $args[6]
         
 		$tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
-
-        #[string] $authority = "https://login.microsoftonline.com/$TenantName"
-        
+      
         [string] $authority = $($TenantInfo.get_item("authorization_endpoint"))
 		$authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
 		$PromptBehavior = [Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior]::Auto
@@ -205,7 +246,8 @@ function Get-OAuthHeaderUPN
 		Return $headers
 	}
 	$Wait = Wait-Job $job
-	$jobResult = Receive-Job $job
+    $jobResult = Receive-Job $job
+    Remove-Job $job
 	Return $jobResult
 }
 
@@ -224,9 +266,6 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     [Parameter(Mandatory = $True)]
       	[string]$ClientSecret,
     [Parameter(Mandatory = $True)]
-    [ValidateSet('Azure','O365')]
-      	[string]$LoginSource,
-    [Parameter(Mandatory = $True)]
       	[string]$resourceURI
     
     )
@@ -234,7 +273,7 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     $TenantName = Validate-TenantName -TenantName $TenantName
 
     #Login Endpoint info
-    $loginURL = ($(Get-TenantLoginEndPoint -TenantName $TenantName -LoginSource $LoginSource)).get_item("token_endpoint")
+    $loginURL = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).get_item("token_endpoint")
 
     # Get an Oauth 2 access token based on client id, secret and tenant domain
     $body = @{grant_type="client_credentials";resource=$resourceURI;client_id=$ClientID;client_secret=$ClientSecret}
@@ -260,9 +299,6 @@ Function Get-OAuthHeaderAppCert
     [parameter(Mandatory=$true)]
         $TenantName,
     [Parameter(Mandatory = $True)]
-    [ValidateSet('Azure','O365')]
-        [string]$LoginSource,
-    [Parameter(Mandatory = $True)]
       	[string]$resourceURI
     )
     $TenantName = Validate-TenantName -TenantName $TenantName
@@ -273,50 +309,37 @@ Function Get-OAuthHeaderAppCert
     $AppCert  = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertificatePath, $CertificatePassword, $flag )
     
     #Login Endpoint info
-    $authority = ($(Get-TenantLoginEndPoint -TenantName $TenantName -LoginSource $LoginSource)).get_item("authorization_endpoint")
+    $authority = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).get_item("authorization_endpoint")
+    
+    #Can't sideload the DLL for this one since the AppCert isn't pass correclty.
+    $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
+    # Create Authentication Context tied to Azure AD Tenant
+    $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
+    $cac = New-Object  Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate($clientID, $AppCert)
+    $authResult = $authContext.AcquireTokenASync($resourceURI, $cac)
 
-   #Azure DLL are sideloaded in a job to bypass potential conflict with other version
-	$job = Start-Job -ArgumentList $AzureADDLL,$authority,$clientId,$AppCert,$resourceURI -ScriptBlock {
-		$AzureADDLL = $args[0]
-		$authority = $args[1]
-		$clientId = $args[2]
-        $AppCert = $args[3]
-        $resourceURI = $args[4]
-        
-		$tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
-        # Create Authentication Context tied to Azure AD Tenant
-        $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
-        $cac = New-Object  Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate($clientID, $AppCert)
-        $authResult = $authContext.AcquireTokenASync($resourceURI, $cac)
-
-        # Check if authentication is successfull.
-        if ($authResult.IsFaulted -eq $True)
-        {
-            Write-Error "No Access Token"
+    # Check if authentication is successfull.
+    if ($authResult.IsFaulted -eq $True)
+    {
+        Write-Error "No Access Token"
+    }
+    else
+    {
+    # Perform REST call.
+        $AuthHeader=$authResult.result.CreateAuthorizationHeader()
+        $headers = @{
+            "Authorization" = $AuthHeader
+            "Content-Type"  = "application/json"
+            "ExpiresOn"     = $authResult.Result.ExpiresOn
         }
-        else
-        {
-        # Perform REST call.
-            $AuthHeader=$authResult.result.CreateAuthorizationHeader()
-            $headers = @{
-                "Authorization" = $AuthHeader
-                "Content-Type"  = "application/json"
-                "ExpiresOn"     = $authResult.Result.ExpiresOn
-            }
-		Return $headers
-	    }
-	$Wait = Wait-Job $job
-	$jobResult = Receive-Job $job
-	Return $jobResult
-    }    
+    Return $headers
+    }
 }
 
 
 #### Connectivity Function ####
-## PreDefine Commun Graph Endpoint
-### Manage Office
-
 ### Intune
+#Only Support User Connection no Application Connect (As Of : 2019-05)
 Function Connect-Intune{
     param
 (
@@ -341,20 +364,20 @@ Function Connect-Intune{
             if($TokenExpires -le 0){
 
             write-host "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
-            $Global:IntuneAuthToken = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -LoginSource O365 -UserPrincipalName $UserPrincipalName
+            $Global:IntuneAuthToken = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
             }
     }
     # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
     else {
-        $Global:IntuneAuthToken = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -LoginSource O365 -UserPrincipalName $UserPrincipalName
+        $Global:IntuneAuthToken = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
     }
     $Global:IntuneAuthToken
 }
 
-### Security
-### Microsoft Graph
-# Call EWS
-## User + Impersonnation
+## Connect EWS
+# User + Impersonnation + App
+
+
 
 ## EXO without Click2Run
 #Ref : https://www.michev.info/Blog/Post/1771/hacking-your-way-around-modern-authentication-and-the-powershell-modules-for-office-365
@@ -379,7 +402,7 @@ Function Connect-EXOPSSession
     $redirectUri = "urn:ietf:wg:oauth:2.0:oob"
     $clientid = "a0c73c16-a7e3-4564-9a95-2bdf47383716"
 
-    $Result = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -LoginSource O365 -UserPrincipalName $UserPrincipalName
+    $Result = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
 
     $Authorization =  $Result.Authorization
     $Password = ConvertTo-SecureString -AsPlainText $Authorization -Force
@@ -389,3 +412,13 @@ Function Connect-EXOPSSession
 }
 
 #### Call Function ####
+
+
+### Manage Office
+# Only Support App connection (As of : 2019-05)
+### Report
+# Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+### Security
+### Microsoft Graph
+
+# Call EWS
