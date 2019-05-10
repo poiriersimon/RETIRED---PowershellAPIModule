@@ -358,8 +358,25 @@ Function Connect-EXOPSSession
     $redirectUri = "urn:ietf:wg:oauth:2.0:oob"
     $clientid = "a0c73c16-a7e3-4564-9a95-2bdf47383716"
 
-    $Result = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
+    if($Global:UPNEXOHeader){
+        # Setting DateTime to Universal time to work in all timezones
+        $DateTime = (Get-Date).ToUniversalTime()
 
+        # If the authToken exists checking when it expires
+        $TokenExpires = ($Global:UPNEXOHeader.ExpiresOn.datetime - $DateTime).Minutes
+        $UPNMismatch = $UserPrincipalName -ne $Global:UPNEXOHeader.UserID
+        $AppIDMismatch = $ClientID -ne $Global:UPNEXOHeader.AppID
+        if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
+            write-host "Authentication need to be refresh" -ForegroundColor Yellow
+            $Global:UPNEXOHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+        }
+    }
+    # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
+    else {
+        $Global:UPNEXOHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+    }
+    $Result = $Global:UPNEXOHeader
+    
     $Authorization =  $Result.Authorization
     $Password = ConvertTo-SecureString -AsPlainText $Authorization -Force
     $Ctoken = New-Object System.Management.Automation.PSCredential -ArgumentList $UserPrincipalName, $Password
@@ -574,7 +591,7 @@ Function Invoke-GraphApi
 
 ### Report
 # Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
-function Get-UsageReportData {
+function Get-GraphUsageReportData {
     param (
     [parameter(Mandatory = $true)]
     [string]$ClientID,
