@@ -685,6 +685,9 @@ function Get-GraphSecurityData {
 
 ### Mail
 
+
+### List of Major Graph Service : https://docs.microsoft.com/en-us/graph/overview-major-services
+
 ### Intune Call
 #https://github.com/Microsoft/Intune-PowerShell-SDK
 
