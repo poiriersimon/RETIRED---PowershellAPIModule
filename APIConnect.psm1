@@ -62,52 +62,6 @@ Function Get-AzureADDLL
     Return $AzureDLL
 }
 
-Function Get-EWSDLL
-{
-    [CmdletBinding()]
-    Param(
-        [Parameter(Mandatory = $false)]
-        [Switch]
-        $AllowInstall,
-        [Parameter(Mandatory = $false)]
-        [System.String]
-        $EWSDLLPath = "C:\Program Files\Microsoft\Exchange\Web Services\2.2\Microsoft.Exchange.WebServices.dll"
-
-    )
-    if((Test-Path $EWSDLLPath) -eq $False -and $AllowInstall -eq $True)
-    {
-        $request = Invoke-WebRequest -Uri https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951
-        Invoke-WebRequest -Uri $(($request.Links |where {$_.href -like "*.msi*"}).href) -Outfile $(Joint-path $PSScriptRoot "EwsManagedApi.msi")
-        #Install MSI Based On : https://powershellexplained.com/2016-10-21-powershell-installing-msi-files/
-        $File = Get-item $(Joint-path $PSScriptRoot "EwsManagedApi.msi")
-        $DataStamp = get-date -Format yyyyMMddTHHmmss
-        $logFile = '{0}-{1}.log' -f $file.fullname,$DataStamp
-        $MSIArguments = @(
-            "/i"
-            ('"{0}"' -f $file.fullname)
-            "/qn"
-            "/norestart"
-            "/L*v"
-            $logFile
-        )
-        Start-Process "msiexec.exe" -ArgumentList $MSIArguments -Wait -NoNewWindow 
-        Start-sleep -Seconds 15
-        Remove-Item $file.FullName
-        if((Test-Path $EWSDLLPath) -eq $False){
-            Write-Error "Can't find EWS API. Please install it manually https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951"
-            return
-        }
-    }
-    Elseif((Test-Path $EWSDLLPath) -eq $False -and $AllowInstall -eq $False)
-    {
-        Write-Error "Can't find EWS API. Please install it manually https://www.microsoft.com/en-us/download/confirmation.aspx?id=42951"
-        return
-    }
-    ##Load EWS DLL
-    Return $EWSDLLPath
-    
-}
-
 Function Get-CurrentUPN
 {
 	$UserPrincipalName = $NULL
@@ -171,7 +125,7 @@ Function Get-TenantLoginEndPoint
 {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $True)]
         [System.String]
         $TenantName,
         [Parameter(Mandatory = $false)]
@@ -336,7 +290,6 @@ Function Get-OAuthHeaderAppCert
     }
 }
 
-
 #### Connectivity Function ####
 ### Intune
 #Only Support User Connection no Application Connect (As Of : 2019-05)
@@ -349,6 +302,7 @@ Function Connect-Intune{
     [string]$UserPrincipalName
 )
     #Connect to Intune Graph API
+    #For a complete Intune module : #https://github.com/Microsoft/Intune-PowerShell-SDK
     # Checking if authToken exists before running authentication
     [string]$clientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547"
     [string]$redirectUri = "urn:ietf:wg:oauth:2.0:oob"
@@ -373,11 +327,6 @@ Function Connect-Intune{
     }
     $Global:IntuneAuthToken
 }
-
-## Connect EWS
-# User + Impersonnation + App
-
-
 
 ## EXO without Click2Run
 #Ref : https://www.michev.info/Blog/Post/1771/hacking-your-way-around-modern-authentication-and-the-powershell-modules-for-office-365
@@ -412,13 +361,189 @@ Function Connect-EXOPSSession
 }
 
 #### Call Function ####
-
-
 ### Manage Office
 # Only Support App connection (As of : 2019-05)
+#https://docs.microsoft.com/en-us/office/office-365-management-api/office-365-service-communications-api-reference
+#Exemple : Invoke-O365ServiceCommunications -TenantName $tenantdomain -Operation CurrentStatus -ClientID $ClientID -ClientSecret $ClientSecret | Select-Object WorkloadDisplayName,Status,ID,StatusDisplayName
+Function Invoke-O365ServiceCommunications{
+    [CmdletBinding(DefaultParameterSetName='ClientSecret')]
+    Param(
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $TenantName,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $Operation,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [String]
+        $ClientID,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [String]
+        $ClientSecret,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $CertificatePath,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $CertificatePassword,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
+        [String]
+        $APIVersion = "v1.0"
+        
+    )
+    #https://docs.microsoft.com/en-us/office/office-365-management-api/office-365-management-activity-api-reference
+    #https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-with-office-365-management-apis
+
+    $ResourceURI = "https://manage.office.com"
+    switch ( $PsCmdlet.ParameterSetName ) 
+    {
+        "ClientSecret"
+        {
+            $ManagementHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+        }
+        "ClientCert"
+        {
+            $ManagementHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+        }
+    }
+    $TenantName = Validate-TenantName -TenantName $TenantName
+    $uri = "https://manage.office.com/api/$($APIVersion)/$TenantGUID/ServiceComms/$($operation)"
+    $Query = (Invoke-RestMethod -Uri $uri –Headers $ManagementHeader –Method Get –Verbose).value
+    Return $Query
+}
+
+#Generic Graph API Call
+Function Invoke-GraphApi
+{
+    [CmdletBinding(DefaultParameterSetName='UPN')]
+    Param(
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [String]
+        $TenantName,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [String]
+        $Resource,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [String]
+        $QueryParams,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [String]
+        $ClientID,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [String]
+        $ClientSecret,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $CertificatePath,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $CertificatePassword,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
+        [String]
+        $APIVersion = "v1.0",
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$false)]
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$false)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+      	[string]$redirectUri,
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
+      	[string]$UserPrincipalName
+    )
+    $resourceURI = "https://graph.microsoft.com"
+    switch ( $PsCmdlet.ParameterSetName )
+    {
+        "UPN"
+        {
+            $GraphtHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+        }
+        "ClientSecret"
+        {
+            $GraphtHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+        }
+        "ClientCert"
+        {
+            $GraphtHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+        }
+    }
+    
+    #Allow larger data set with multiple read.
+    #From :https://smsagent.blog/2018/10/22/querying-for-devices-in-azure-ad-and-intune-with-powershell-and-microsoft-graph/    
+    try {
+        $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)$QueryParams"
+        $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphtHeader -Method Get
+    }
+    catch {
+        $ex = $_.Exception
+        $errorResponse = $ex.Response.GetResponseStream()
+        $reader = New-Object System.IO.StreamReader($errorResponse)
+        $reader.BaseStream.Position = 0
+        $reader.DiscardBufferedData()
+        $responseBody = $reader.ReadToEnd();
+        Write-Host "Response content:`n$responseBody" -f Red
+        Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+        write-host
+        break
+     
+        }
+    
+    # Return the data
+    if($GraphResponse.Value -eq $null){
+        $Items = $GraphResponse
+    }else{
+        $Items = $GraphResponse.Value
+    }
+    $NextLink = $GraphResponse.'@odata.nextLink'
+    # Need to loop the requests because only 100 results are returned each time
+    While ($NextLink -ne $null)
+    {
+        $GraphResponse = Invoke-RestMethod -Uri $NextLink -Headers $GraphtHeader -Method Get
+        $NextLink = $GraphResponse.'@odata.nextLink'
+        $Items += $GraphResponse.Value
+    }
+    Return $Items
+}
+
 ### Report
 # Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+function Get-UsageReportData {
+    param (
+    [parameter(Mandatory = $true)]
+    [string]$ClientID,
+   
+   [parameter(Mandatory = $true)]
+    [string]$ClientSecret,
+   
+   [parameter(Mandatory = $true)]
+    [string]$TenantName,
+    
+    [parameter(Mandatory=$true)]
+    $Query = "/getEmailActivityUserDetail(period='D180')"
+    )
+   try {
+    # Call Microsoft Graph and extract CSV content and convert data to PowerShell objects.
+        $UsageData = (Invoke-GraphApi -TenantName $TenantName -Resource reports -QueryParams $Query -ClientID $ClientID -ClientSecret $ClientSecret)| ConvertFrom-Csv
+    }
+    catch {
+        $null
+    }
+    Return $UsageData
+}
+
 ### Security
 ### Microsoft Graph
+### Intune Call
+#https://github.com/Microsoft/Intune-PowerShell-SDK
 
-# Call EWS
