@@ -196,6 +196,8 @@ function Get-OAuthHeaderUPN
             "Authorization" = $AuthHeader
             "Content-Type"  = "application/json"
             "ExpiresOn"     = $authResult.Result.ExpiresOn
+            "AppID"     = $ClientID
+            "UserID"     = $UserPrincipalName
           }
 		Return $headers
 	}
@@ -206,6 +208,7 @@ function Get-OAuthHeaderUPN
 }
 
 ## App (client secret)
+#To Do
 
 ## App (client secret) W/O DLL
 # Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
@@ -234,9 +237,12 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     $oauth = Invoke-RestMethod -Method Post -Uri "$($loginURL)?api-version=1.0" -Body $body
 
     #Let's put the oauth token in the header, where it belongs
-    $headerParams  = @{'Authorization'="$($oauth.token_type) $($oauth.access_token)"}
-
-    Return $headerParams
+    $headers = @{
+        "Authorization" = "$($oauth.token_type) $($oauth.access_token)"
+        "ExpiresOn"     = $authResult.Result.ExpiresOn
+        "AppID"     = $ClientID
+    }
+    Return $headers
 }
 
 ## App (Cert)
@@ -285,6 +291,7 @@ Function Get-OAuthHeaderAppCert
             "Authorization" = $AuthHeader
             "Content-Type"  = "application/json"
             "ExpiresOn"     = $authResult.Result.ExpiresOn
+            "AppID"     = $ClientID
         }
     Return $headers
     }
@@ -342,7 +349,7 @@ Function Connect-EXOPSSession
     )
     $AzureADDLL = Get-AzureADDLL
     $TenantName = Validate-TenantName -TenantName $TenantName
-    IF([string]::IsNullOrEmpty($UserPrincipalName))
+    if([string]::IsNullOrEmpty($UserPrincipalName))
     {
         $UserPrincipalName = Get-CurrentUPN
     }
@@ -467,23 +474,72 @@ Function Invoke-GraphApi
     {
         "UPN"
         {
-            $GraphtHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+            if($Global:UPNGraphHeader){
+                # Setting DateTime to Universal time to work in all timezones
+                $DateTime = (Get-Date).ToUniversalTime()
+        
+                # If the authToken exists checking when it expires
+                $TokenExpires = ($Global:UPNGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
+                $UPNMismatch = $UserPrincipalName -ne $Global:UPNGraphHeader.UserID
+                $AppIDMismatch = $ClientID -ne $Global:UPNGraphHeader.AppID
+                if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
+                    write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                    $Global:UPNGraphHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                }
+            }
+            # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
+            else {
+                $Global:UPNGraphHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+            }
+            $GraphHeader = $Global:UPNGraphHeader
         }
         "ClientSecret"
         {
-            $GraphtHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+            if($Global:CSGraphHeader){
+                # Setting DateTime to Universal time to work in all timezones
+                $DateTime = (Get-Date).ToUniversalTime()
+        
+                # If the authToken exists checking when it expires
+                $TokenExpires = ($Global:CSGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
+                $AppIDMismatch = $ClientID -ne $Global:CSGraphHeader.AppID
+                if($TokenExpires -le 0 -or $AppIDMismatch){
+                    write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                $Global:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+                }
+            }
+            # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
+            else {
+                $Global:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+            }
+            $GraphHeader = $Global:CSGraphHeader
         }
         "ClientCert"
         {
-            $GraphtHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+            if($Global:CCGraphHeader){
+                # Setting DateTime to Universal time to work in all timezones
+                $DateTime = (Get-Date).ToUniversalTime()
+        
+                # If the authToken exists checking when it expires
+                $TokenExpires = ($Global:CCGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
+                $AppIDMismatch = $ClientID -ne $Global:CCGraphHeader.AppID
+                if($TokenExpires -le 0 -or $AppIDMismatch){
+                    write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                    $Global:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+                }
+            }
+            # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
+            else {
+                $Global:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+            }
+            $GraphHeader = $Global:CCGraphHeader 
         }
     }
     
     #Allow larger data set with multiple read.
     #From :https://smsagent.blog/2018/10/22/querying-for-devices-in-azure-ad-and-intune-with-powershell-and-microsoft-graph/    
     try {
-        $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)$QueryParams"
-        $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphtHeader -Method Get
+        $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)/$($QueryParams)"
+        $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method Get
     }
     catch {
         $ex = $_.Exception
@@ -529,8 +585,8 @@ function Get-UsageReportData {
    [parameter(Mandatory = $true)]
     [string]$TenantName,
     
-    [parameter(Mandatory=$true)]
-    $Query = "/getEmailActivityUserDetail(period='D180')"
+    [parameter(Mandatory=$false)]
+    $Query = "getEmailActivityUserDetail(period='D180')"
     )
    try {
     # Call Microsoft Graph and extract CSV content and convert data to PowerShell objects.
@@ -543,7 +599,75 @@ function Get-UsageReportData {
 }
 
 ### Security
-### Microsoft Graph
+function Get-GraphSecurityData {
+    [CmdletBinding(DefaultParameterSetName='UPN')]
+    param (
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [String]
+        $TenantName,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$false)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$false)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$false)]
+        [String]
+        $Query = "secureScores",
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [String]
+        $ClientID,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
+        [String]
+        $ClientSecret,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $CertificatePath,
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
+        [String]
+        $CertificatePassword,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
+        [String]
+        $APIVersion = "v1.0",
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$false)]
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$false)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$true)]
+      	[string]$redirectUri,
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
+      	[string]$UserPrincipalName
+    )
+    try {
+    # Call Microsoft Graph and extract CSV content and convert data to PowerShell objects.
+        switch ( $PsCmdlet.ParameterSetName )
+        {
+            "UPN"
+            {
+                if([string]::IsNullOrEmpty($UserPrincipalName))
+                {
+                    $UserPrincipalName = Get-CurrentUPN
+                }
+                $SecurityData = (Invoke-GraphApi -TenantName $TenantName -Resource security -QueryParams $Query -ClientID $ClientID -UserPrincipalName $UserPrincipalName -redirectUri $redirectUri)
+            }
+            "ClientSecret"
+            {
+                $SecurityData = (Invoke-GraphApi -TenantName $TenantName -Resource security -QueryParams $Query -ClientID $ClientID -ClientSecret $ClientSecret)
+            }
+            "ClientCert"
+            {
+                $SecurityData = (Invoke-GraphApi -TenantName $TenantName -Resource security -QueryParams $Query -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword)
+            }
+        }
+    }
+    catch {
+        $null
+    }
+    Return $SecurityData
+}
+
+### Mail
+
 ### Intune Call
 #https://github.com/Microsoft/Intune-PowerShell-SDK
 
