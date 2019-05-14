@@ -17,19 +17,25 @@
 
 <#
 .SYNOPSIS
-Short description
+Powershell module to allow multiple way of connectivity toward multiple Microsoft Graph
 
 .DESCRIPTION
-Long description
-
-.PARAMETER InstallPreview
-Parameter description
+This Powershell module can be used to connect to Microsoft Graph API but also other Graph API leveraging Azure AD
+Currently, it is possible to used (as long as the Graph API allow it) Credential, Application with Client Secret 
+and Application with Certificate for authentication.
 
 .EXAMPLE
-An example
+Manual API call to get Email Activity
+Invoke-GraphApi -TenantName Contoso -Resource reports -QueryParams "getEmailActivityUserDetail(period='D180')" -ClientID $ClientID -ClientSecret $ClientSecret
+
+.EXAMPLE
+Get Secure Score
+Get-GraphSecurityData -UserPrincipalName admin@contoso.com -TenantName contoso -ClientID $ClientIDUPN -redirectUri http://localhost
 
 .NOTES
-General notes
+Other Source for Powershell Graph API Module 
+- https://github.com/Ryan2065/MSGraphCmdlets Only Credential but Really flexible Invoke
+- https://github.com/markekraus/PSMSGraph Focus on Application, seem quite robust.
 #>
 
 #### Generic Function ####
