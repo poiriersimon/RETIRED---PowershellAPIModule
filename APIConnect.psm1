@@ -395,7 +395,8 @@ Function Connect-EXOPSSession
 # Only Support App connection (As of : 2019-05)
 #https://docs.microsoft.com/en-us/office/office-365-management-api/office-365-service-communications-api-reference
 #Exemple : Invoke-O365ServiceCommunications -TenantName $tenantdomain -Operation CurrentStatus -ClientID $ClientID -ClientSecret $ClientSecret | Select-Object WorkloadDisplayName,Status,ID,StatusDisplayName
-Function Invoke-O365ServiceCommunications{
+Function Invoke-O365ServiceCommunications 
+{
     [CmdletBinding(DefaultParameterSetName='ClientSecret')]
     Param(
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
@@ -442,7 +443,7 @@ Function Invoke-O365ServiceCommunications{
     }
     $TenantName = Validate-TenantName -TenantName $TenantName
     $uri = "https://manage.office.com/api/$($APIVersion)/$TenantGUID/ServiceComms/$($operation)"
-    $Query = (Invoke-RestMethod -Uri $uri –Headers $ManagementHeader –Method Get –Verbose).value
+    $Query = (Invoke-RestMethod -Uri $uri -Headers $ManagementHeader -Method Get -Verbose).value
     Return $Query
 }
 
