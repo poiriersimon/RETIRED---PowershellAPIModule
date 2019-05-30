@@ -488,6 +488,23 @@ Function Invoke-GraphApi
         [Parameter(ParameterSetName='UPN', Mandatory=$True)]
         [String]
         $QueryParams,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
+        [String]
+        [ValidateSet(
+            'Default',
+            'Delete',
+            'Get',
+            'Head',
+            'Merge',
+            'Options',
+            'Patch',
+            'Post',
+            'Put',
+            'Trace'
+        )]
+        $Method = "Get",
         [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
         [Parameter(ParameterSetName='UPN', Mandatory=$True)]
@@ -512,7 +529,8 @@ Function Invoke-GraphApi
         [Parameter(ParameterSetName='UPN', Mandatory=$True)]
       	[string]$redirectUri,
         [Parameter(ParameterSetName='UPN', Mandatory=$False)]
-      	[string]$UserPrincipalName
+        [string]
+        $UserPrincipalName
     )
     $resourceURI = "https://graph.microsoft.com"
     switch ( $PsCmdlet.ParameterSetName )
@@ -584,7 +602,7 @@ Function Invoke-GraphApi
     #From :https://smsagent.blog/2018/10/22/querying-for-devices-in-azure-ad-and-intune-with-powershell-and-microsoft-graph/    
     try {
         $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)/$($QueryParams)"
-        $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method Get
+        $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method $Method
     }
     catch {
         $ex = $_.Exception
