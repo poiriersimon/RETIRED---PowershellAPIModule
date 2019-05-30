@@ -39,6 +39,26 @@ Other Source for Powershell Graph API Module
 #>
 
 #### Generic Function ####
+#From : https://stackoverflow.com/questions/4192971/in-powershell-how-do-i-convert-datetime-to-unix-time/
+function ConvertFromCtime ([Int]$ctime) {
+    [datetime]$epoch = '1970-01-01 00:00:00'    
+    [datetime]$result = $epoch.AddSeconds($Ctime)
+    return $result
+}
+
+#From : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
+function Convert-UTCtoLocal
+{
+param(
+[parameter(Mandatory=$true)]
+[String] $UTCTime
+)
+
+$strCurrentTimeZone = (Get-WmiObject win32_timezone).StandardName
+$TZ = [System.TimeZoneInfo]::FindSystemTimeZoneById($strCurrentTimeZone)
+$LocalTime = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $TZ)
+Return $LocalTime
+}
 Function Get-AzureADDLL
 {
     [CmdletBinding()]
@@ -243,9 +263,10 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     $oauth = Invoke-RestMethod -Method Post -Uri "$($loginURL)?api-version=1.0" -Body $body
 
     #Let's put the oauth token in the header, where it belongs
+    $ExpireOn = "$(ConvertFromCtime -ctime $oauth.expires_on)"
     $headers = @{
         "Authorization" = "$($oauth.token_type) $($oauth.access_token)"
-        "ExpiresOn"     = $authResult.Result.ExpiresOn
+        "ExpiresOn"     = $ExpireOn
         "AppID"     = $ClientID
     }
     Return $headers
@@ -524,7 +545,7 @@ Function Invoke-GraphApi
                 $DateTime = (Get-Date).ToUniversalTime()
         
                 # If the authToken exists checking when it expires
-                $TokenExpires = ($Global:CSGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
+                $TokenExpires = ((Get-date ($Global:CSGraphHeader.ExpiresOn)) - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Global:CSGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
                     write-host "Authentication need to be refresh" -ForegroundColor Yellow
@@ -617,7 +638,7 @@ function Get-GraphUsageReportData {
         $UsageData = (Invoke-GraphApi -TenantName $TenantName -Resource reports -QueryParams $Query -ClientID $ClientID -ClientSecret $ClientSecret)| ConvertFrom-Csv
     }
     catch {
-        $null
+        Write-Error "Couldn't complete"
     }
     Return $UsageData
 }
