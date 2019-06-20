@@ -463,6 +463,7 @@ Function Invoke-O365ServiceCommunications
         }
     }
     $TenantName = Validate-TenantName -TenantName $TenantName
+    $TenantGUID = (Get-TenantLoginEndPoint $TenantName).token_endpoint.split("/")[-3]
     $uri = "https://manage.office.com/api/$($APIVersion)/$TenantGUID/ServiceComms/$($operation)"
     $Query = (Invoke-RestMethod -Uri $uri -Headers $ManagementHeader -Method Get -Verbose).value
     Return $Query
