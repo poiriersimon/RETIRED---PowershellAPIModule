@@ -90,38 +90,7 @@ Function Get-AzureADDLL
 
 Function Get-CurrentUPN
 {
-	$UserPrincipalName = $NULL
-	#
-	$UPNList = @()
-	$UPN = $Env:USERNAME
-	if($UPN -eq $NULL){
-		$UPN = (whoami)
-		if($UPN -ne $NULL){
-			$UPN = $UPN.split("\")[-1]
-		}else{
-			$Proc = Get-CimInstance Win32_Process -Filter "name = 'powershell.exe'"
-			if($proc.GetType().BaseType.name -eq "Array"){
-				foreach($process in $proc){
-					$UPNList += Invoke-CimMethod -InputObject $process -MethodName GetOwner | select -ExpandProperty User
-				}
-				$UPN = $UPNList | select -first 1
-			}else{
-				$UPN = Invoke-CimMethod -InputObject $process -MethodName GetOwner | select -ExpandProperty User
-			}
-		}
-	}
-	
-	#Find UPN
-	$strFilter = "(&(objectCategory=User)(SAMAccountName=$($UPN)))"
-	$objDomain = New-Object System.DirectoryServices.DirectoryEntry
-	$objSearcher = New-Object System.DirectoryServices.DirectorySearcher
-	$objSearcher.SearchRoot = $objDomain
-	$objSearcher.PageSize = 1
-	$objSearcher.Filter = $strFilter
-	$objSearcher.SearchScope = "Subtree"
-	$objSearcher.PropertiesToLoad.Add("userprincipalname") | Out-Null
-	$colResults = $objSearcher.FindAll()
-	[string]$UserPrincipalName = $colResults[0].Properties.userprincipalname
+	$UserPrincipalName = ([ADSI] "LDAP://<SID=$(([System.Security.Principal.WindowsIdentity]::GetCurrent()).User)>").userPrincipalName
 	Return $UserPrincipalName
 }
 
