@@ -132,10 +132,10 @@ Function Get-TenantLoginEndPoint
     $TenantName = Validate-TenantName -TenantName $TenantName
     if($LoginSource -eq "EvoSTS")
     {
-        $webrequest = Invoke-WebRequest -Uri https://login.windows.net/$($TenantName)/.well-known/openid-configuration
+        $webrequest = Invoke-WebRequest -Uri https://login.windows.net/$($TenantName)/.well-known/openid-configuration  -UseBasicParsing
     }
     else {
-        $webrequest = Invoke-WebRequest -Uri https://login.microsoftonline.com/$($TenantName)/.well-known/openid-configuration
+        $webrequest = Invoke-WebRequest -Uri https://login.microsoftonline.com/$($TenantName)/.well-known/openid-configuration  -UseBasicParsing
     }
     if($webrequest.StatusCode -eq 200){
         $webrequest.content.replace("{","").replace("}","").split(",") | Foreach{ if($_ -like '*:*'){ $TenantInfo[(($_.split(":")[0]).replace('"',''))]= ($_.substring($($_.split(":")[0]).length +1)).replace('"','') } }
@@ -431,7 +431,7 @@ Function Invoke-O365ServiceCommunications
             $ManagementHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
         }
     }
-    $TenantName = Validate-TenantName -TenantName $TenantName
+    $TenantGUID = (Get-TenantLoginEndPoint $TenantName).token_endpoint.split("/")[-3]
     $uri = "https://manage.office.com/api/$($APIVersion)/$TenantGUID/ServiceComms/$($operation)"
     $Query = (Invoke-RestMethod -Uri $uri -Headers $ManagementHeader -Method Get -Verbose).value
     Return $Query
