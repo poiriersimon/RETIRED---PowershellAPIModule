@@ -36,6 +36,12 @@ Get-GraphSecurityData -UserPrincipalName admin@contoso.com -TenantName contoso -
 Other Source for Powershell Graph API Module 
 - https://github.com/Ryan2065/MSGraphCmdlets Only Credential but Really flexible Invoke
 - https://github.com/markekraus/PSMSGraph Focus on Application, seem quite robust.
+
+Other Module that do part of what is done here even better:
+- EXCH-REST: https://github.com/gscales/Exch-Rest
+- Intune: https://github.com/Microsoft/Intune-PowerShell-SDK
+
+List of Major Graph Service : https://docs.microsoft.com/en-us/graph/overview-major-services
 #>
 
 #### Generic Function ####
@@ -90,38 +96,7 @@ Function Get-AzureADDLL
 
 Function Get-CurrentUPN
 {
-	$UserPrincipalName = $NULL
-	#
-	$UPNList = @()
-	$UPN = $Env:USERNAME
-	if($UPN -eq $NULL){
-		$UPN = (whoami)
-		if($UPN -ne $NULL){
-			$UPN = $UPN.split("\")[-1]
-		}else{
-			$Proc = Get-CimInstance Win32_Process -Filter "name = 'powershell.exe'"
-			if($proc.GetType().BaseType.name -eq "Array"){
-				foreach($process in $proc){
-					$UPNList += Invoke-CimMethod -InputObject $process -MethodName GetOwner | select -ExpandProperty User
-				}
-				$UPN = $UPNList | select -first 1
-			}else{
-				$UPN = Invoke-CimMethod -InputObject $process -MethodName GetOwner | select -ExpandProperty User
-			}
-		}
-	}
-	
-	#Find UPN
-	$strFilter = "(&(objectCategory=User)(SAMAccountName=$($UPN)))"
-	$objDomain = New-Object System.DirectoryServices.DirectoryEntry
-	$objSearcher = New-Object System.DirectoryServices.DirectorySearcher
-	$objSearcher.SearchRoot = $objDomain
-	$objSearcher.PageSize = 1
-	$objSearcher.Filter = $strFilter
-	$objSearcher.SearchScope = "Subtree"
-	$objSearcher.PropertiesToLoad.Add("userprincipalname") | Out-Null
-	$colResults = $objSearcher.FindAll()
-	[string]$UserPrincipalName = $colResults[0].Properties.userprincipalname
+	$UserPrincipalName = ([ADSI] "LDAP://<SID=$(([System.Security.Principal.WindowsIdentity]::GetCurrent()).User)>").userPrincipalName
 	Return $UserPrincipalName
 }
 
@@ -175,6 +150,8 @@ Function Get-TenantLoginEndPoint
 }
 
 #### Authentication Function ####
+#TODO : AcquireTokenSilentAsync to check from Cache (UPN/CERT)
+# https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/AcquireTokenSilentAsync-using-a-cached-token
 
 ## UPN
 function Get-OAuthHeaderUPN
@@ -234,7 +211,7 @@ function Get-OAuthHeaderUPN
 }
 
 ## App (client secret)
-#To Do
+#ToDo
 
 ## App (client secret) W/O DLL
 # Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
@@ -336,7 +313,7 @@ Function Connect-Intune{
     [string]$UserPrincipalName
 )
     #Connect to Intune Graph API
-    #For a complete Intune module : #https://github.com/Microsoft/Intune-PowerShell-SDK
+    #For a complete Intune module : https://github.com/Microsoft/Intune-PowerShell-SDK
     # Checking if authToken exists before running authentication
     [string]$clientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547"
     [string]$redirectUri = "urn:ietf:wg:oauth:2.0:oob"
@@ -467,6 +444,8 @@ Function Invoke-O365ServiceCommunications
     $Query = (Invoke-RestMethod -Uri $uri -Headers $ManagementHeader -Method Get -Verbose).value
     Return $Query
 }
+
+#TODO: Add Start/Stop/List/Get Subscription from the Management API (O365ManagedAPI.ps1)
 
 #Generic Graph API Call
 Function Invoke-GraphApi
@@ -729,11 +708,10 @@ function Get-GraphSecurityData {
     Return $SecurityData
 }
 
+
+#TODO : Add Mail cmdlet
 ### Mail
 
-
-### List of Major Graph Service : https://docs.microsoft.com/en-us/graph/overview-major-services
-
+#TODO : Add Intune Call Exemple
 ### Intune Call
 #https://github.com/Microsoft/Intune-PowerShell-SDK
-
