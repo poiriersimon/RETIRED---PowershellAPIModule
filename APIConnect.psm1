@@ -47,15 +47,16 @@ function ConvertFromCtime ([Int]$ctime) {
 #From : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
 function Convert-UTCtoLocal
 {
-param(
-[parameter(Mandatory=$true)]
-[String] $UTCTime
-)
+    [CmdletBinding()]
+    Param(
+        [parameter(Mandatory=$true)]
+        [String] $UTCTime
+    )
 
-$strCurrentTimeZone = (Get-WmiObject win32_timezone).StandardName
-$TZ = [System.TimeZoneInfo]::FindSystemTimeZoneById($strCurrentTimeZone)
-$LocalTime = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $TZ)
-Return $LocalTime
+    $strCurrentTimeZone = (Get-WmiObject win32_timezone).StandardName
+    $TZ = [System.TimeZoneInfo]::FindSystemTimeZoneById($strCurrentTimeZone)
+    $LocalTime = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $TZ)
+    Return $LocalTime
 }
 Function Get-AzureADDLL
 {
@@ -143,6 +144,8 @@ Function Get-TenantLoginEndPoint
 
 #### Authentication Function ####
 #TODO : AcquireTokenSilentAsync to check from Cache (UPN/CERT)
+#TODO : Check token cache for potential benefit (UPN/CERT)
+#TODO : Aquire Refresh Token and reuse (UPN/CERT)
 # https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/AcquireTokenSilentAsync-using-a-cached-token
 
 ## UPN
@@ -168,38 +171,23 @@ function Get-OAuthHeaderUPN
         $UserPrincipalName = Get-CurrentUPN
     }
     $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName
-	#Azure DLL are sideloaded in a job to bypass potential conflict with other version
-	$job = Start-Job -ArgumentList $TenantName,$UserPrincipalName,$AzureADDLL,$clientId,$redirectUri,$resourceAppIdURI,$TenantInfo -ScriptBlock {
-		$TenantName = $args[0]
-		$UserPrincipalName = $args[1]
-		$AzureADDLL = $args[2]
-		$clientId = $args[3]
-        $redirectUri = $args[4]
-        $resourceAppIdURI = $args[5]
-        $TenantInfo = $args[6]
-        
-		$tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
-      
-        [string] $authority = $($TenantInfo.get_item("authorization_endpoint"))
-		$authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
-		$PromptBehavior = [Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior]::Auto
-		$platformParam = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.PlatformParameters" -ArgumentList $PromptBehavior
-		$userId = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier" -ArgumentList $UserPrincipalName, "OptionalDisplayableId"
-		$authResult = $authContext.AcquireTokenAsync($resourceAppIdURI, $clientId, $redirectUri, $platformParam, $userId)
-		$AuthHeader=$authResult.result.CreateAuthorizationHeader()
-		$headers = @{
-            "Authorization" = $AuthHeader
-            "Content-Type"  = "application/json"
-            "ExpiresOn"     = $authResult.Result.ExpiresOn
-            "AppID"     = $ClientID
-            "UserID"     = $UserPrincipalName
-          }
-		Return $headers
-	}
-	$Wait = Wait-Job $job
-    $jobResult = Receive-Job $job
-    Remove-Job $job
-	Return $jobResult
+    $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
+    
+    [string] $authority = $($TenantInfo.get_item("authorization_endpoint"))
+    $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
+    $PromptBehavior = [Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior]::Auto
+    $platformParam = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.PlatformParameters" -ArgumentList $PromptBehavior
+    $userId = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier" -ArgumentList $UserPrincipalName, "OptionalDisplayableId"
+    $authResult = $authContext.AcquireTokenAsync($resourceAppIdURI, $clientId, $redirectUri, $platformParam, $userId)
+    $AuthHeader=$authResult.result.CreateAuthorizationHeader()
+    $headers = @{
+        "Authorization" = $AuthHeader
+        "Content-Type"  = "application/json"
+        "ExpiresOn"     = $authResult.Result.ExpiresOn
+        "AppID"     = $ClientID
+        "UserID"     = $UserPrincipalName
+        }
+    Return $headers
 }
 
 ## App (client secret)
@@ -242,6 +230,7 @@ function Get-OAuthHeaderAppClientSecretNoDLL
 }
 
 ## App (Cert)
+#TODO : Check for to add thumbprint option for installed certificate
 Function Get-OAuthHeaderAppCert
 {
     param (
@@ -459,4 +448,15 @@ Function Invoke-GraphApi
         $Items += $GraphResponse.Value
     }
     Return $Items
+}
+
+#Read Cached Token 
+Function Get-CachedToken
+{
+    $AzureADDLL = Get-AzureADDLL
+    $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
+    $cache = [Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache]::DefaultShared
+    if($cache.count -gt 0){
+        Return $cache.ReadItems() 
+    }
 }
