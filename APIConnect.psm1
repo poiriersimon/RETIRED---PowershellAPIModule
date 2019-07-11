@@ -289,7 +289,7 @@ Function Get-OAuthHeaderAppCert
             "AppID"     = $ClientID
         }
     Return $headers
-    }
+    
 }
 
 #### Request Function ####
