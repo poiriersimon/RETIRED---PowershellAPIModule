@@ -461,7 +461,7 @@ Function Invoke-GraphApi
 }
 
 #Read Cached Token 
-Function Get-CachedToken
+Function Get-TokenCache
 {
     $AzureADDLL = Get-AzureADDLL
     $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
