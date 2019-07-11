@@ -143,9 +143,6 @@ Function Get-TenantLoginEndPoint
 }
 
 #### Authentication Function ####
-#TODO : AcquireTokenSilentAsync to check from Cache (UPN/CERT)
-#TODO : Check token cache for potential benefit (UPN/CERT)
-#TODO : Aquire Refresh Token and reuse (UPN/CERT)
 # https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/wiki/AcquireTokenSilentAsync-using-a-cached-token
 
 ## UPN
@@ -178,8 +175,15 @@ function Get-OAuthHeaderUPN
     $PromptBehavior = [Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior]::Auto
     $platformParam = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.PlatformParameters" -ArgumentList $PromptBehavior
     $userId = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.UserIdentifier" -ArgumentList $UserPrincipalName, "OptionalDisplayableId"
+    Try{
+        $authResult = $authContext.AcquireTokenSilentAsync($resourceAppIdURI, $clientId)
+        $AuthHeader=$authResult.result.CreateAuthorizationHeader()
+    }
+    Catch{
     $authResult = $authContext.AcquireTokenAsync($resourceAppIdURI, $clientId, $redirectUri, $platformParam, $userId)
     $AuthHeader=$authResult.result.CreateAuthorizationHeader()
+    }
+    
     $headers = @{
         "Authorization" = $AuthHeader
         "Content-Type"  = "application/json"
@@ -261,17 +265,23 @@ Function Get-OAuthHeaderAppCert
     # Create Authentication Context tied to Azure AD Tenant
     $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
     $cac = New-Object  Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate($clientID, $AppCert)
-    $authResult = $authContext.AcquireTokenASync($resourceURI, $cac)
-
-    # Check if authentication is successfull.
-    if ($authResult.IsFaulted -eq $True)
-    {
-        Write-Error "No Access Token"
-    }
-    else
-    {
-    # Perform REST call.
+    Try{
+        $authResult = $authContext.AcquireTokenSilentAsync($resourceAppIdURI, $clientId)
         $AuthHeader=$authResult.result.CreateAuthorizationHeader()
+    }
+    Catch{
+        $authResult = $authContext.AcquireTokenASync($resourceURI, $cac)
+        if ($authResult.IsFaulted -eq $True)
+        {
+            Write-Error "No Access Token"
+        }
+        else
+        {
+            $AuthHeader=$authResult.result.CreateAuthorizationHeader()
+        }
+    }
+     
+    # Perform REST call.
         $headers = @{
             "Authorization" = $AuthHeader
             "Content-Type"  = "application/json"
