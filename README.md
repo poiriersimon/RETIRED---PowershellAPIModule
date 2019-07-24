@@ -1,4 +1,4 @@
 # PowershellAPIModule
-Powershell Module to group API Authetication and connectivity cmdlet (AzureAD, Graph, EWS, etc)
+Powershell Module to connect to ADAL and to group API Authentication and connectivity cmdlet (AzureAD, Graph, EWS, etc.)
 
 EWS is not yet implemented and will have it own module
