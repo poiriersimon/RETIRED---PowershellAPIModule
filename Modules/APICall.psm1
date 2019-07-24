@@ -296,10 +296,9 @@ Function Connect-EXOPSSession
         $Authorization =  $Result.Authorization
         $Password = ConvertTo-SecureString -AsPlainText $Authorization -Force
         $Ctoken = New-Object System.Management.Automation.PSCredential -ArgumentList $UserPrincipalName, $Password
-        $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/PowerShell-LiveId?BasicAuthToOAuthConversion=true -Credential $Ctoken -Authentication Basic -AllowRedirection
-        Import-PSSession $Session
+        $EXOSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/PowerShell-LiveId?BasicAuthToOAuthConversion=true -Credential $Ctoken -Authentication Basic -AllowRedirection
+        Import-Module (Import-PSSession $EXOSession -AllowClobber) -Global -DisableNameChecking  
     }
-    
 }
 
 ### Manage Office
