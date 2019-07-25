@@ -97,7 +97,7 @@ Function Get-AuthProxy
     $wc.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
 }
 
-Function Validate-TenantName
+Function Test-TenantName
 {
     [CmdletBinding()]
     Param(
@@ -124,13 +124,13 @@ Function Get-TenantLoginEndPoint
         $LoginSource = "EvoSTS"
     )
     $TenantInfo = @{}
-    $TenantName = Validate-TenantName -TenantName $TenantName
+    $TenantName = Test-TenantName -TenantName $TenantName
     if($LoginSource -eq "EvoSTS")
     {
-        $webrequest = Invoke-WebRequest -Uri https://login.windows.net/$($TenantName)/.well-known/openid-configuration  -UseBasicParsing
+        $webrequest = Invoke-WebRequest -Uri https://login.windows.net/$($TenantName)/.well-known/openid-configuration -UseBasicParsing
     }
     else {
-        $webrequest = Invoke-WebRequest -Uri https://login.microsoftonline.com/$($TenantName)/.well-known/openid-configuration  -UseBasicParsing
+        $webrequest = Invoke-WebRequest -Uri https://login.microsoftonline.com/$($TenantName)/.well-known/openid-configuration -UseBasicParsing
     }
     if($webrequest.StatusCode -eq 200){
         $webrequest.content.replace("{","").replace("}","").split(",") | Foreach{ if($_ -like '*:*'){ $TenantInfo[(($_.split(":")[0]).replace('"',''))]= ($_.substring($($_.split(":")[0]).length +1)).replace('"','') } }
@@ -158,8 +158,8 @@ function Get-OAuthHeaderUPN
       	[string]$UserPrincipalName
     )
     $AzureADDLL = Get-AzureADDLL
-    $TenantName = Validate-TenantName -TenantName $TenantName
-    IF([string]::IsNullOrEmpty($UserPrincipalName))
+    $TenantName = Test-TenantName -TenantName $TenantName
+    if([string]::IsNullOrEmpty($UserPrincipalName))
     {
         $UserPrincipalName = Get-CurrentUPN
     }
@@ -210,7 +210,7 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     
     )
     
-    $TenantName = Validate-TenantName -TenantName $TenantName
+    $TenantName = Test-TenantName -TenantName $TenantName
 
     #Login Endpoint info
     $loginURL = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).get_item("token_endpoint")
@@ -246,7 +246,7 @@ Function Get-OAuthHeaderAppCert
     [Parameter(Mandatory = $True)]
       	[string]$resourceURI
     )
-    $TenantName = Validate-TenantName -TenantName $TenantName
+    $TenantName = Test-TenantName -TenantName $TenantName
     $AzureADDLL = Get-AzureADDLL
 
     #Load Certificate
