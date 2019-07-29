@@ -55,11 +55,16 @@ Function Invoke-GraphApi
         [Parameter(ParameterSetName='UPN', Mandatory=$True)]
         [String]
         $Resource,
-        [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
-        [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
-        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
         [String]
         $QueryParams,
+        [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
+        [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
+        [String]
+        $Body,
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$False)]
         [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
         [Parameter(ParameterSetName='UPN', Mandatory=$False)]
@@ -119,12 +124,12 @@ Function Invoke-GraphApi
                 $AppIDMismatch = $ClientID -ne $Global:UPNGraphHeader.AppID
                 if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
                     write-host "Authentication need to be refresh" -ForegroundColor Yellow
-                    $Global:UPNGraphHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                    $Global:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
                 }
             }
             # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
             else {
-                $Global:UPNGraphHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                $Global:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
             }
             $GraphHeader = $Global:UPNGraphHeader
         }
@@ -173,8 +178,19 @@ Function Invoke-GraphApi
     #Allow larger data set with multiple read.
     #From :https://smsagent.blog/2018/10/22/querying-for-devices-in-azure-ad-and-intune-with-powershell-and-microsoft-graph/    
     try {
-        $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)/$($QueryParams)"
-        $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method $Method
+        if (([string]::IsNullOrEmpty($QueryParams))) {
+            $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)"
+        }
+        else{
+            $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)/$($QueryParams)"
+        }
+        if([string]::IsNullOrEmpty($Body)){
+            $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method $Method
+        }
+        else {
+            $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method $Method -Body $Body
+        }
+        
     }
     catch {
         $ex = $_.Exception
@@ -236,12 +252,12 @@ Function Connect-Intune{
             if($TokenExpires -le 0){
 
             write-host "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
-            $Global:IntuneAuthToken = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
+            $Global:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
             }
     }
     # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
     else {
-        $Global:IntuneAuthToken = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
+        $Global:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
     }
     $Global:IntuneAuthToken
 }
@@ -284,12 +300,12 @@ Function Connect-EXOPSSession
             $AppIDMismatch = $ClientID -ne $Global:UPNEXOHeader.AppID
             if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
                 write-host "Authentication need to be refresh" -ForegroundColor Yellow
-                $Global:UPNEXOHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                $Global:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
             }
         }
         # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
         else {
-            $Global:UPNEXOHeader = Get-OAuthHeaderUPN -TenantName $TenantName -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+            $Global:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
         }
         $Result = $Global:UPNEXOHeader
         

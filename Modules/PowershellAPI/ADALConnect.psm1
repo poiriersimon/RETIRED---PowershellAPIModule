@@ -124,7 +124,6 @@ Function Get-TenantLoginEndPoint
         $LoginSource = "EvoSTS"
     )
     $TenantInfo = @{}
-    $TenantName = Test-TenantName -TenantName $TenantName
     if($LoginSource -eq "EvoSTS")
     {
         $webrequest = Invoke-WebRequest -Uri https://login.windows.net/$($TenantName)/.well-known/openid-configuration -UseBasicParsing
@@ -147,8 +146,6 @@ function Get-OAuthHeaderUPN
 	[cmdletbinding()]
 	param(
     [Parameter(Mandatory = $True)]
-      	[string]$TenantName ,
-    [Parameter(Mandatory = $True)]
       	[string]$clientId,
     [Parameter(Mandatory = $True)]
       	[string]$redirectUri,
@@ -158,11 +155,11 @@ function Get-OAuthHeaderUPN
       	[string]$UserPrincipalName
     )
     $AzureADDLL = Get-AzureADDLL
-    $TenantName = Test-TenantName -TenantName $TenantName
     if([string]::IsNullOrEmpty($UserPrincipalName))
     {
         $UserPrincipalName = Get-CurrentUPN
     }
+    $TenantName = $UserPrincipalName.split("@")[1]
     $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName
     $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
     
