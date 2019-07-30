@@ -47,7 +47,6 @@ Function Invoke-GraphApi
     Param(
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
         [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
-        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
         [String]
         $TenantName,
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
