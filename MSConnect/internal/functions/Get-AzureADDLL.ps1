@@ -23,6 +23,6 @@
         Throw "Can't find Azure AD DLL. Install the module manually 'Install-Module AzureAD'"
     }
 
-    $AzureDLL = join-path (($AzureADModules | sort version -Descending | Select -first 1).Path | split-Path) Microsoft.IdentityModel.Clients.ActiveDirectory.dll
+    $AzureDLL = join-path (($AzureADModules | sort-object version -Descending | Select-object -first 1).Path | split-Path) Microsoft.IdentityModel.Clients.ActiveDirectory.dll
     Return $AzureDLL
 }
