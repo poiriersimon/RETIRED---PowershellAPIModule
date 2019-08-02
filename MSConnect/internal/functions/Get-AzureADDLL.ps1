@@ -6,7 +6,7 @@
         [Switch]
         $InstallPreview
     )
-    [array]$AzureADModules = Get-Module -ListAvailable | where{$_.name -eq "AzureAD" -or $_.name -eq "AzureADPreview"}
+    [array]$AzureADModules = Get-Module -ListAvailable | where-object {$_.name -eq "AzureAD" -or $_.name -eq "AzureADPreview"}
     Try
     {
         if($AzureADModules.count -eq 0 -and $InstallPreview -eq $True)
