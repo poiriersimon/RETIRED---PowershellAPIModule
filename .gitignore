@@ -1,3 +1,28 @@
+﻿
+# ignore the settings folder and files for VSCode and PSS
+.vscode/*
+*.psproj
+*TempPoint*
+
+# Ignore staging info from Visual Studio
+library/MSConnect/.vs/*
+library/MSConnect/MSConnect/bin/*
+library/MSConnect/MSConnect/obj/*
+
+# ignore PowerShell Studio MetaData
+MSConnect/MSConnect.psproj
+MSConnect/MSConnect.psproj.bak
+MSConnect/MSConnect.psprojs
+MSConnect/MSConnect.psproj
+
+# ignore the TestResults
+TestResults/*
+
+# ignore the publishing Directory
+publish/*
+
 test.txt
+README.md.old
 O365ManagedAPI.ps1
-MultiModuleADALConnect.ps1
+Multimoduleadalconnect.ps1
+EWSConnect.psm1
