@@ -24,7 +24,7 @@
 
             if($TokenExpires -le 0){
 
-            write-host "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
+            Write-PSFMessage -Level Host -Message "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
             $Global:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
             }
     }

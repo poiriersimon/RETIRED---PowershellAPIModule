@@ -19,7 +19,7 @@ function Get-GraphUsageReportData {
         $UsageData = (Invoke-GraphApi -TenantName $TenantName -Resource reports -QueryParams $Query -ClientID $ClientID -ClientSecret $ClientSecret)| ConvertFrom-Csv
     }
     catch {
-        Write-Error "Couldn't complete"
+        Throw "Couldn't complete"
     }
     Return $UsageData
 }

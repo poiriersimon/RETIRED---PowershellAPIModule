@@ -39,7 +39,7 @@ Function Get-OAuthHeaderAppCert
         $authResult = $authContext.AcquireTokenASync($resourceURI, $cac)
         if ($authResult.IsFaulted -eq $True)
         {
-            Write-Error "No Access Token"
+            Throw "No Access Token"
         }
         else
         {

@@ -79,7 +79,7 @@
                 $UPNMismatch = $UserPrincipalName -ne $Global:UPNGraphHeader.UserID
                 $AppIDMismatch = $ClientID -ne $Global:UPNGraphHeader.AppID
                 if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
-                    write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
                     $Global:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
                 }
             }
@@ -99,7 +99,7 @@
                 $TokenExpires = ((Get-date ($Global:CSGraphHeader.ExpiresOn)) - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Global:CSGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
-                    write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
                 $Global:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
                 }
             }
@@ -119,7 +119,7 @@
                 $TokenExpires = ($Global:CCGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Global:CCGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
-                    write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
                     $Global:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
                 }
             }
@@ -155,9 +155,9 @@
         $reader.BaseStream.Position = 0
         $reader.DiscardBufferedData()
         $responseBody = $reader.ReadToEnd();
-        Write-Host "Response content:`n$responseBody" -f Red
-        Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
-        write-host
+        Write-PSFMessage -Level Host -Message "Response content:`n$responseBody" -f Red
+        Throw "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+        Write-PSFMessage -Level Host -Message
         break
 
         }

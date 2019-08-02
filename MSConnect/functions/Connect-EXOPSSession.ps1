@@ -34,7 +34,7 @@ Function Connect-EXOPSSession
             $UPNMismatch = $UserPrincipalName -ne $Global:UPNEXOHeader.UserID
             $AppIDMismatch = $ClientID -ne $Global:UPNEXOHeader.AppID
             if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
-                write-host "Authentication need to be refresh" -ForegroundColor Yellow
+                Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
                 $Global:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
             }
         }
