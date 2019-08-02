@@ -4,13 +4,13 @@ function Get-GraphUsageReportData {
     param (
     [parameter(Mandatory = $true)]
     [string]$ClientID,
-   
+
    [parameter(Mandatory = $true)]
     [string]$ClientSecret,
-   
+
    [parameter(Mandatory = $true)]
     [string]$TenantName,
-    
+
     [parameter(Mandatory=$false)]
     $Query = "getEmailActivityUserDetail(period='D180')"
     )

@@ -73,7 +73,7 @@
             if($Global:UPNGraphHeader){
                 # Setting DateTime to Universal time to work in all timezones
                 $DateTime = (Get-Date).ToUniversalTime()
-        
+
                 # If the authToken exists checking when it expires
                 $TokenExpires = ($Global:UPNGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
                 $UPNMismatch = $UserPrincipalName -ne $Global:UPNGraphHeader.UserID
@@ -94,7 +94,7 @@
             if($Global:CSGraphHeader){
                 # Setting DateTime to Universal time to work in all timezones
                 $DateTime = (Get-Date).ToUniversalTime()
-        
+
                 # If the authToken exists checking when it expires
                 $TokenExpires = ((Get-date ($Global:CSGraphHeader.ExpiresOn)) - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Global:CSGraphHeader.AppID
@@ -114,7 +114,7 @@
             if($Global:CCGraphHeader){
                 # Setting DateTime to Universal time to work in all timezones
                 $DateTime = (Get-Date).ToUniversalTime()
-        
+
                 # If the authToken exists checking when it expires
                 $TokenExpires = ($Global:CCGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Global:CCGraphHeader.AppID
@@ -127,12 +127,12 @@
             else {
                 $Global:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
             }
-            $GraphHeader = $Global:CCGraphHeader 
+            $GraphHeader = $Global:CCGraphHeader
         }
     }
-    
+
     #Allow larger data set with multiple read.
-    #From :https://smsagent.blog/2018/10/22/querying-for-devices-in-azure-ad-and-intune-with-powershell-and-microsoft-graph/    
+    #From :https://smsagent.blog/2018/10/22/querying-for-devices-in-azure-ad-and-intune-with-powershell-and-microsoft-graph/
     try {
         if (([string]::IsNullOrEmpty($QueryParams))) {
             $GraphURL = "https://graph.microsoft.com/$($APIVersion)/$($Resource)"
@@ -146,7 +146,7 @@
         else {
             $GraphResponse = Invoke-RestMethod -Uri $GraphURL -Headers $GraphHeader -Method $Method -Body $Body
         }
-        
+
     }
     catch {
         $ex = $_.Exception
@@ -159,9 +159,9 @@
         Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
         write-host
         break
-     
+
         }
-    
+
     # Return the data
     if($GraphResponse.Value -eq $null){
         $Items = $GraphResponse

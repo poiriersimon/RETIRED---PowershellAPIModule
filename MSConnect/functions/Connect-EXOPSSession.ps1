@@ -24,11 +24,11 @@ Function Connect-EXOPSSession
         $resourceUri = "https://outlook.office365.com"
         $redirectUri = "urn:ietf:wg:oauth:2.0:oob"
         $clientid = "a0c73c16-a7e3-4564-9a95-2bdf47383716"
-    
+
         if($Global:UPNEXOHeader){
             # Setting DateTime to Universal time to work in all timezones
             $DateTime = (Get-Date).ToUniversalTime()
-    
+
             # If the authToken exists checking when it expires
             $TokenExpires = ($Global:UPNEXOHeader.ExpiresOn.datetime - $DateTime).Minutes
             $UPNMismatch = $UserPrincipalName -ne $Global:UPNEXOHeader.UserID
@@ -43,11 +43,11 @@ Function Connect-EXOPSSession
             $Global:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
         }
         $Result = $Global:UPNEXOHeader
-        
+
         $Authorization =  $Result.Authorization
         $Password = ConvertTo-SecureString -AsPlainText $Authorization -Force
         $Ctoken = New-Object System.Management.Automation.PSCredential -ArgumentList $UserPrincipalName, $Password
         $EXOSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/PowerShell-LiveId?BasicAuthToOAuthConversion=true -Credential $Ctoken -Authentication Basic -AllowRedirection
-        Import-Module (Import-PSSession $EXOSession -AllowClobber) -Global -DisableNameChecking  
+        Import-Module (Import-PSSession $EXOSession -AllowClobber) -Global -DisableNameChecking
     }
 }

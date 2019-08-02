@@ -22,10 +22,10 @@ Function Get-OAuthHeaderAppCert
     #Load Certificate
     $flag = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::MachineKeySet
     $AppCert  = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertificatePath, $CertificatePassword, $flag )
-    
+
     #Login Endpoint info
     $authority = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).get_item("authorization_endpoint")
-    
+
     #Can't sideload the DLL for this one since the AppCert isn't pass correclty.
     $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
     # Create Authentication Context tied to Azure AD Tenant
@@ -46,7 +46,7 @@ Function Get-OAuthHeaderAppCert
             $AuthHeader=$authResult.result.CreateAuthorizationHeader()
         }
     }
-     
+
     # Perform REST call.
         $headers = @{
             "Authorization" = $AuthHeader
@@ -55,5 +55,5 @@ Function Get-OAuthHeaderAppCert
             "AppID"     = $ClientID
         }
     Return $headers
-    
+
 }

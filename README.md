@@ -1,8 +1,8 @@
 ﻿# Description
 
-Insert a useful description for the MSConnect project here.
+Powershell Module to connect to ADAL and to group API Authentication and connectivity cmdlet (AzureAD, Graph, EWS, etc.)
 
-Remember, it's the first thing a visitor will see.
+EWS is not yet implemented and will have it own module
 
 # Project Setup Instructions
 ## Working with the layout

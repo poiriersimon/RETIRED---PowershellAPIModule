@@ -19,7 +19,7 @@
     $TenantName = $UserPrincipalName.split("@")[1]
     $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName
     $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
-    
+
     [string] $authority = $($TenantInfo.get_item("authorization_endpoint"))
     $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
     $PromptBehavior = [Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior]::Auto
@@ -33,7 +33,7 @@
     $authResult = $authContext.AcquireTokenAsync($resourceAppIdURI, $clientId, $redirectUri, $platformParam, $userId)
     $AuthHeader=$authResult.result.CreateAuthorizationHeader()
     }
-    
+
     $headers = @{
         "Authorization" = $AuthHeader
         "Content-Type"  = "application/json"
