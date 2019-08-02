@@ -1,4 +1,4 @@
-Function Get-AuthProxy
+﻿Function Get-AuthProxy
 {
 	[CmdletBinding()]
 	param (

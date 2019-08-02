@@ -225,7 +225,7 @@ Function Invoke-GraphApi
 
 #### Connectivity Function ####
 ### Intune
-#Only Support User Connection no Application Connect (As Of : 2019-05)
+
 Function Connect-Intune{
     param
 (
@@ -262,8 +262,7 @@ Function Connect-Intune{
 }
 
 ## EXO without Click2Run
-#Ref : https://www.michev.info/Blog/Post/1771/hacking-your-way-around-modern-authentication-and-the-powershell-modules-for-office-365
-#Only Support User Connection no Application Connect (As Of : 2019-05)
+
 Function Connect-EXOPSSession
 {
     param (
@@ -317,9 +316,6 @@ Function Connect-EXOPSSession
 }
 
 ### Manage Office
-# Only Support App connection (As of : 2019-05)
-#https://docs.microsoft.com/en-us/office/office-365-management-api/office-365-service-communications-api-reference
-#Exemple : Invoke-O365ServiceCommunications -TenantName $tenantdomain -Operation CurrentStatus -ClientID $ClientID -ClientSecret $ClientSecret | Select-Object WorkloadDisplayName,Status,ID,StatusDisplayName
 Function Invoke-O365ServiceCommunications 
 {
     [CmdletBinding(DefaultParameterSetName='ClientSecret')]
@@ -372,10 +368,9 @@ Function Invoke-O365ServiceCommunications
     Return $Query
 }
 
-#TODO: Add Start/Stop/List/Get Subscription from the Management API (O365ManagedAPI.ps1)
 
 ### Report
-# Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+
 function Get-GraphUsageReportData {
     param (
     [parameter(Mandatory = $true)]
@@ -469,9 +464,3 @@ function Get-GraphSecurityData {
 }
 
 
-#TODO : Add Mail cmdlet
-### Mail
-
-#TODO : Add Intune Call Exemple
-### Intune Call
-#https://github.com/Microsoft/Intune-PowerShell-SDK

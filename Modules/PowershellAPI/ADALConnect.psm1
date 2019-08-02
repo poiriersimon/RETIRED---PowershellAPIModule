@@ -33,14 +33,14 @@ Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -Ce
 #>
 
 #### Generic Function ####
-#From : https://stackoverflow.com/questions/4192971/in-powershell-how-do-i-convert-datetime-to-unix-time/
-function ConvertFromCtime ([Int]$ctime) {
+
+function ConvertFrom-Ctime ([Int]$ctime) {
     [datetime]$epoch = '1970-01-01 00:00:00'    
     [datetime]$result = $epoch.AddSeconds($Ctime)
     return $result
 }
 
-#From : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
+
 function Convert-UTCtoLocal
 {
     [CmdletBinding()]
@@ -191,7 +191,7 @@ function Get-OAuthHeaderUPN
 #ToDo
 
 ## App (client secret) W/O DLL
-# Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+
 function Get-OAuthHeaderAppClientSecretNoDLL
 {
 	[cmdletbinding()]
@@ -217,7 +217,7 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     $oauth = Invoke-RestMethod -Method Post -Uri "$($loginURL)?api-version=1.0" -Body $body
 
     #Let's put the oauth token in the header, where it belongs
-    $ExpireOn = "$(ConvertFromCtime -ctime $oauth.expires_on)"
+    $ExpireOn = "$(ConvertFrom-Ctime -ctime $oauth.expires_on)"
     $headers = @{
         "Authorization" = "$($oauth.token_type) $($oauth.access_token)"
         "ExpiresOn"     = $ExpireOn
@@ -226,8 +226,7 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     Return $headers
 }
 
-## App (Cert)
-#TODO : Check for to add thumbprint option for installed certificate
+
 Function Get-OAuthHeaderAppCert
 {
     param (

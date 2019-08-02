@@ -1,4 +1,7 @@
-﻿Function Invoke-O365ServiceCommunications 
+﻿# Only Support App connection (As of : 2019-05)
+#https://docs.microsoft.com/en-us/office/office-365-management-api/office-365-service-communications-api-reference
+#Exemple : Invoke-O365ServiceCommunications -TenantName $tenantdomain -Operation CurrentStatus -ClientID $ClientID -ClientSecret $ClientSecret | Select-Object WorkloadDisplayName,Status,ID,StatusDisplayName
+Function Invoke-O365ServiceCommunications 
 {
     [CmdletBinding(DefaultParameterSetName='ClientSecret')]
     Param(

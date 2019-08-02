@@ -1,3 +1,5 @@
+﻿## App (Cert)
+#TODO : Check for to add thumbprint option for installed certificate
 Function Get-OAuthHeaderAppCert
 {
     [CmdletBinding()]

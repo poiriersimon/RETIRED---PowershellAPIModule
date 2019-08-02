@@ -1,3 +1,4 @@
+﻿# Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
 function Get-GraphUsageReportData {
     [CmdletBinding()]
     param (

@@ -1,4 +1,5 @@
-﻿function Convert-UTCtoLocal
+﻿#From : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
+function Convert-UTCtoLocal
 {
     [CmdletBinding()]
     Param(

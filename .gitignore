@@ -21,6 +21,8 @@ TestResults/*
 # ignore the publishing Directory
 publish/*
 
+# Personal ignore
+Modules/*
 test.txt
 README.md.old
 O365ManagedAPI.ps1

@@ -1,4 +1,6 @@
-﻿Function Connect-EXOPSSession
+﻿#Ref : https://www.michev.info/Blog/Post/1771/hacking-your-way-around-modern-authentication-and-the-powershell-modules-for-office-365
+#Only Support User Connection no Application Connect (As Of : 2019-05)
+Function Connect-EXOPSSession
 {
     [cmdletbinding()]
     param (

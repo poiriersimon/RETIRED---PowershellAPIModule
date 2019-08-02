@@ -1,4 +1,4 @@
-Function Connect-Intune{
+﻿Function Connect-Intune{
     [CmdletBinding()]
     param
 (
@@ -10,6 +10,7 @@ Function Connect-Intune{
     #Connect to Intune Graph API
     #For a complete Intune module : https://github.com/Microsoft/Intune-PowerShell-SDK
     # Checking if authToken exists before running authentication
+    ##Only Support User Connection no Application Connect (As Of : 2019-05)
     [string]$clientId = "d1ddf0e4-d672-4dae-b554-9d5bdfd93547"
     [string]$redirectUri = "urn:ietf:wg:oauth:2.0:oob"
     [string]$resourceUri = "https://graph.microsoft.com"

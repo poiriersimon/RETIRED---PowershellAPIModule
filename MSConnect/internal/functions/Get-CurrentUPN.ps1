@@ -1,4 +1,4 @@
-Function Get-CurrentUPN
+﻿Function Get-CurrentUPN
 {
 	[CmdletBinding()]
 	param (

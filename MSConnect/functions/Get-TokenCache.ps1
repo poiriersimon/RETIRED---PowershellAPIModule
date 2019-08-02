@@ -1,4 +1,4 @@
-Function Get-TokenCache
+﻿Function Get-TokenCache
 {
 	[CmdletBinding()]
 	param (

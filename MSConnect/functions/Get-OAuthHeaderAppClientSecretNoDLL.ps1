@@ -1,4 +1,5 @@
-﻿function Get-OAuthHeaderAppClientSecretNoDLL
+﻿# Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+function Get-OAuthHeaderAppClientSecretNoDLL
 {
 	[cmdletbinding()]
 	param(
@@ -23,7 +24,7 @@
     $oauth = Invoke-RestMethod -Method Post -Uri "$($loginURL)?api-version=1.0" -Body $body
 
     #Let's put the oauth token in the header, where it belongs
-    $ExpireOn = "$(ConvertFromCtime -ctime $oauth.expires_on)"
+    $ExpireOn = "$(ConvertFrom-Ctime -ctime $oauth.expires_on)"
     $headers = @{
         "Authorization" = "$($oauth.token_type) $($oauth.access_token)"
         "ExpiresOn"     = $ExpireOn

@@ -39,7 +39,7 @@
 	# FormatsToProcess = @('xml\MSConnect.Format.ps1xml')
 	
 	# Functions to export from this module
-	FunctionsToExport = ''
+	FunctionsToExport = @('Connect-EXOPSSession', 'Connect-Intune', 'Get-GraphSecurityData', 'Get-GraphUsageReportData', 'Get-OAuthHeaderAppCert', 'Get-OAuthHeaderAppClientSecretNoDLL', 'Get-OAuthHeaderUPN', 'Get-TokenCache', 'Invoke-GraphApi', 'Invoke-O365ServiceCommunications')
 	
 	# Cmdlets to export from this module
 	CmdletsToExport = ''
