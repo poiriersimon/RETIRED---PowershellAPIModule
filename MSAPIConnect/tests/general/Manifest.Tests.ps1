@@ -1,6 +1,6 @@
 ﻿Describe "Validating the module manifest" {
 	$moduleRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
-	$manifest = ((Get-Content "$moduleRoot\MSConnect.psd1") -join "`n") | Invoke-Expression
+	$manifest = ((Get-Content "$moduleRoot\MSApiConnect.psd1") -join "`n") | Invoke-Expression
 	Context "Basic resources validation" {
 		$files = Get-ChildItem "$moduleRoot\functions" -Recurse -File | Where-Object Name -like "*.ps1"
 		It "Exports all functions in the public folder" {

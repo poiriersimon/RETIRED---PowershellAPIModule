@@ -1,6 +1,6 @@
 ﻿@{
 	# Script module or binary module file associated with this manifest
-	RootModule = 'MSConnect.psm1'
+	RootModule = 'MSApiConnect.psm1'
 	
 	# Version number of this module.
 	ModuleVersion = '1.0.0'
@@ -30,13 +30,13 @@
 	)
 	
 	# Assemblies that must be loaded prior to importing this module
-	# RequiredAssemblies = @('bin\MSConnect.dll')
+	# RequiredAssemblies = @('bin\MSApiConnect.dll')
 	
 	# Type files (.ps1xml) to be loaded when importing this module
-	# TypesToProcess = @('xml\MSConnect.Types.ps1xml')
+	# TypesToProcess = @('xml\MSApiConnect.Types.ps1xml')
 	
 	# Format files (.ps1xml) to be loaded when importing this module
-	# FormatsToProcess = @('xml\MSConnect.Format.ps1xml')
+	# FormatsToProcess = @('xml\MSApiConnect.Format.ps1xml')
 	
 	# Functions to export from this module
 	FunctionsToExport = @('Connect-EXOPSSession', 'Connect-Intune', 'Get-GraphSecurityData', 'Get-GraphUsageReportData', 'Get-OAuthHeaderAppCert', 'Get-OAuthHeaderAppClientSecretNoDLL', 'Get-OAuthHeaderUPN', 'Get-TokenCache', 'Invoke-GraphApi', 'Invoke-O365ServiceCommunications')

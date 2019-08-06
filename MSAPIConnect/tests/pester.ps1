@@ -15,9 +15,9 @@ Write-PSFMessage -Level Important -Message "Starting Tests"
 
 Write-PSFMessage -Level Important -Message "Importing Module"
 
-Remove-Module MSConnect -ErrorAction Ignore
-Import-Module "$PSScriptRoot\..\MSConnect.psd1"
-Import-Module "$PSScriptRoot\..\MSConnect.psm1" -Force
+Remove-Module MSApiConnect -ErrorAction Ignore
+Import-Module "$PSScriptRoot\..\MSApiConnect.psd1"
+Import-Module "$PSScriptRoot\..\MSApiConnect.psm1" -Force
 
 Write-PSFMessage -Level Important -Message "Creating test result folder"
 $null = New-Item -Path "$PSScriptRoot\..\.." -Name TestResults -ItemType Directory -Force

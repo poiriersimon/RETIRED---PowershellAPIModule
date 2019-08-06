@@ -16,12 +16,12 @@
 		The name of the repository to use for gathering dependencies from.
 #>
 param (
-	$WorkingDirectory = "$($env:SYSTEM_DEFAULTWORKINGDIRECTORY)\_MSConnect",
+	$WorkingDirectory = "$($env:SYSTEM_DEFAULTWORKINGDIRECTORY)\_MSApiConnect",
 	
 	$Repository = 'PSGallery'
 )
 
-$moduleName = 'MSConnect'
+$moduleName = 'MSApiConnect'
 
 # Prepare Paths
 Write-PSFMessage -Level Host -Message "Creating working folders"

@@ -5,15 +5,15 @@
 *TempPoint*
 
 # Ignore staging info from Visual Studio
-library/MSConnect/.vs/*
-library/MSConnect/MSConnect/bin/*
-library/MSConnect/MSConnect/obj/*
+library/MSApiConnect/.vs/*
+library/MSApiConnect/MSApiConnect/bin/*
+library/MSApiConnect/MSApiConnect/obj/*
 
 # ignore PowerShell Studio MetaData
-MSConnect/MSConnect.psproj
-MSConnect/MSConnect.psproj.bak
-MSConnect/MSConnect.psprojs
-MSConnect/MSConnect.psproj
+MSApiConnect/MSApiConnect.psproj
+MSApiConnect/MSApiConnect.psproj.bak
+MSApiConnect/MSApiConnect.psprojs
+MSApiConnect/MSApiConnect.psproj
 
 # ignore the TestResults
 TestResults/*

@@ -1,4 +1,4 @@
-﻿New-PSFLicense -Product 'MSConnect' -Manufacturer 'Simon Poirier' -ProductVersion $script:ModuleVersion -ProductType Module -Name MIT -Version "1.0.0.0" -Date (Get-Date "2019-08-02") -Text @"
+﻿New-PSFLicense -Product 'MSApiConnect' -Manufacturer 'Simon Poirier' -ProductVersion $script:ModuleVersion -ProductType Module -Name MIT -Version "1.0.0.0" -Date (Get-Date "2019-08-02") -Text @"
 Copyright (c) 2019 Simon Poirier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

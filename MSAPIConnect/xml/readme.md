@@ -11,8 +11,8 @@ External help files should _not_ be placed in this folder!
 
 There should be only one format file and one type extension file per project, as importing them has a notable impact on import times.
 
- - The Format XML should be named `MSConnect.Format.ps1xml`
- - The Type Extension XML should be named `MSConnect.Types.ps1xml`
+ - The Format XML should be named `MSApiConnect.Format.ps1xml`
+ - The Type Extension XML should be named `MSApiConnect.Types.ps1xml`
 
 ## Tools
 

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{89B9514B-11ED-491B-9320-6751497C173B}") = "MSConnect", "MSConnect\MSConnect.csproj", "{6A15E773-0CFA-4FC0-8181-A62724EAB5C4}"
+Project("{89B9514B-11ED-491B-9320-6751497C173B}") = "MSApiConnect", "MSApiConnect\MSApiConnect.csproj", "{6A15E773-0CFA-4FC0-8181-A62724EAB5C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

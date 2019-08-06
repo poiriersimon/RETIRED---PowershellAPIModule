@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MSConnect
+namespace MSApiConnect
 {
     public class Class1
     {

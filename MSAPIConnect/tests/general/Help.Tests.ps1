@@ -39,7 +39,7 @@ Param (
 	$CommandPath = @("$PSScriptRoot\..\..\functions", "$PSScriptRoot\..\..\internal\functions"),
 	
 	[string]
-	$ModuleName = "MSConnect",
+	$ModuleName = "MSApiConnect",
 	
 	[string]
 	$ExceptionsFile = "$PSScriptRoot\Help.Exceptions.ps1"

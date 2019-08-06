@@ -1,9 +1,9 @@
 ﻿<#
 	.SYNOPSIS
-		Installs the MSConnect Module from github
+		Installs the MSApiConnect Module from github
 		
 	.DESCRIPTION
-		This script installs the MSConnect Module from github.
+		This script installs the MSApiConnect Module from github.
 		
 		It does so by ...
 		- downloading the specified branch as zip to $env:TEMP
@@ -42,13 +42,13 @@ Param (
 
 #region Configuration for cloning script
 # Name of the module that is being cloned
-$ModuleName = "MSConnect"
+$ModuleName = "MSApiConnect"
 
 # Base path to the github repository
 $BaseUrl = "https://github.com/poiriersimon/PowershellAPIModule"
 
 # If the module is in a subfolder of the cloned repository, specify relative path here. Empty string to skip.
-$SubFolder = "MSConnect"
+$SubFolder = "MSApiConnect"
 #endregion Configuration for cloning script
 
 #region Parameter Calculation
