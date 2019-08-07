@@ -4,13 +4,10 @@ Function Connect-EXOPSSession
 {
     [cmdletbinding()]
     param (
-    [parameter(Mandatory=$true)]
-        $TenantName,
     [parameter(Mandatory=$False)]
         $UserPrincipalName
     )
     $AzureADDLL = Get-AzureADDLL
-    $TenantName = Validate-TenantName -TenantName $TenantName
     if([string]::IsNullOrEmpty($UserPrincipalName))
     {
         $UserPrincipalName = Get-CurrentUPN

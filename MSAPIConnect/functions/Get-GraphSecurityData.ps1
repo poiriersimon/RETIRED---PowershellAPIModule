@@ -3,7 +3,7 @@
     param (
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
         [Parameter(ParameterSetName='ClientCert', Mandatory=$True)]
-        [Parameter(ParameterSetName='UPN', Mandatory=$True)]
+        [Parameter(ParameterSetName='UPN', Mandatory=$False)]
         [String]
         $TenantName,
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$false)]
@@ -47,7 +47,7 @@
                 {
                     $UserPrincipalName = Get-CurrentUPN
                 }
-                $SecurityData = (Invoke-GraphApi -TenantName $TenantName -Resource security -QueryParams $Query -ClientID $ClientID -UserPrincipalName $UserPrincipalName -redirectUri $redirectUri)
+                $SecurityData = (Invoke-GraphApi -Resource security -QueryParams $Query -ClientID $ClientID -UserPrincipalName $UserPrincipalName -redirectUri $redirectUri)
             }
             "ClientSecret"
             {

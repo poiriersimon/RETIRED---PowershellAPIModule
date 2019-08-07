@@ -20,7 +20,7 @@
     $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName
     $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
 
-    [string] $authority = $($TenantInfo.get_item("authorization_endpoint"))
+    [string] $authority = $TenantInfo.authorization_endpoint
     $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
     $PromptBehavior = [Microsoft.IdentityModel.Clients.ActiveDirectory.PromptBehavior]::Auto
     $platformParam = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.PlatformParameters" -ArgumentList $PromptBehavior

@@ -2,8 +2,6 @@
     [CmdletBinding()]
     param
 (
-    [Parameter(Mandatory = $True)]
-    [string]$TenantName,
     [Parameter(Mandatory = $False)]
     [string]$UserPrincipalName
 )
