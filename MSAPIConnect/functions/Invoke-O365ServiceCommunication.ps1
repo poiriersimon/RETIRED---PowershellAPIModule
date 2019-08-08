@@ -32,7 +32,8 @@ Specify the API version to which send the request.
 V1.0 or Beta are the current accepted Value
 
 .EXAMPLE
-Invoke-O365ServiceCommunications -TenantName contoso.com -Operation CurrentStatus -ClientID $ClientID -ClientSecret $ClientSecret | Select-Object WorkloadDisplayName,Status,ID,StatusDisplayName
+Get current Status of all O365 Services
+Invoke-O365ServiceCommunications -TenantName contoso.com -Operation CurrentStatus -ClientID $ClientID -ClientSecret $ClientSecret
 
 .NOTES
 Only Support App connection (As of : 2019-05)
@@ -42,7 +43,7 @@ https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-wi
 
 #>
 
-Function Invoke-O365ServiceCommunications
+Function Invoke-O365ServiceCommunication
 {
     [CmdletBinding(DefaultParameterSetName='ClientSecret')]
     Param(

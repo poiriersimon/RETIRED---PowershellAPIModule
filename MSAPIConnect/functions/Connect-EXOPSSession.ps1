@@ -9,6 +9,7 @@ Connect to Exchange Online without the Click2Run
 UserPrincipalName of the Admin Account
 
 .EXAMPLE
+Connect to Exchange Online
 Connect-EXOPSSession -UserPrincipalName admin@contoso.com
 
 .NOTES
@@ -24,7 +25,6 @@ Function Connect-EXOPSSession
     [parameter(Mandatory=$False)]
         $UserPrincipalName
     )
-    $AzureADDLL = Get-AzureADDLL
     if([string]::IsNullOrEmpty($UserPrincipalName))
     {
         $UserPrincipalName = Get-CurrentUPN

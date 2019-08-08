@@ -9,6 +9,7 @@ Convert UTC Time to Local Time
 UTC DATE Time Value
 
 .EXAMPLE
+Convert UTC time to Local Time
 Convert-UTCtoLocal -UTCTime "2019-02-27 1:00:00"
 
 .NOTES
@@ -17,6 +18,7 @@ PS5 Version of : https://devblogs.microsoft.com/scripting/powertip-convert-from-
 
 function Convert-UTCtoLocal
 {
+    [OutputType([DateTime])]
     [CmdletBinding()]
     Param(
         [parameter(Mandatory=$true)]

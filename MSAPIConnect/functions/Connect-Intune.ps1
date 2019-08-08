@@ -9,6 +9,7 @@ Connect to Intune with Powershell
 UserPrincipalName of the Admin Account
 
 .EXAMPLE
+Connect to Intune API
 Connect-Intune -UserPrincipalName admin@contoso.com
 
 .NOTES

@@ -22,6 +22,7 @@ Currently, there no validation, so refer to the docs.microsoft.com API
 #TODO - add url for docs
 
 .EXAMPLE
+Get the Details Email Activities for the last 180 days
 Get-GraphUsageReportData -ClientID $ClientID -ClientSecret $ClientSecret -TenantName contoso.com -Query "getEmailActivityUserDetail(period='D180')"
 
 .NOTES

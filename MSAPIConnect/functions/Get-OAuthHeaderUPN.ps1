@@ -20,6 +20,7 @@ UserPrincipalName of the Admin Account
 
 .EXAMPLE
 TODO - Example
+TODO - Line 2
 
 .NOTES
 #
@@ -27,7 +28,8 @@ TODO - Example
 
 function Get-OAuthHeaderUPN
 {
-	[cmdletbinding()]
+    [OutputType([Hashtable])]
+    [cmdletbinding()]
 	param(
     [Parameter(Mandatory = $True)]
       	[string]$ClientID,
@@ -45,7 +47,7 @@ function Get-OAuthHeaderUPN
     }
     $TenantName = $UserPrincipalName.split("@")[1]
     $TenantInfo = Get-TenantLoginEndPoint -TenantName $TenantName
-    $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
+    $NULL = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
 
     [string] $authority = $TenantInfo.authorization_endpoint
     $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority

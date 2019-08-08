@@ -6,6 +6,7 @@ Do Proxy Auth with Default Network Credential
 Do Proxy Auth with Default Network Credential
 
 .EXAMPLE
+Use Default Proxy with network Credential in Powershell
 Get-AuthProxy
 
 .NOTES

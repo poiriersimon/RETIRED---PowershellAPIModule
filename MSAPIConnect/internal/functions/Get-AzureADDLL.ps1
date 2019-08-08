@@ -10,6 +10,7 @@ Install AzureAD PS Module if not installed
 Switch to force the installation of AzureADPreview Module if no module are found.
 
 .EXAMPLE
+Return the Azure DLL Location
 Get-AzureADDLL
 
 .NOTES

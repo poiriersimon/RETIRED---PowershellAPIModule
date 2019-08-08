@@ -50,6 +50,7 @@ Redirect URI of the Azure AD Application that is registered.
 UserPrincipalName of the Admin Account
 
 .EXAMPLE
+Get the Details Email Activities for the last 180 days
 Invoke-GraphApi -TenantName contoso.com -Resource reports -QueryParams "getEmailActivityUserDetail(period='D180')" -ClientID $ClientID -ClientSecret $ClientSecret
 
 .NOTES

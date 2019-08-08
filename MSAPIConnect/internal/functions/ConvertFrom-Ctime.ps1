@@ -9,6 +9,7 @@ Convert Date Time to Unix Time
 Date and Time to convert to UNIX time
 
 .EXAMPLE
+Convert Time to Unix Time
 ConvertFrom-Ctime -ctime "2019-02-27 1:00:00"
 
 .NOTES

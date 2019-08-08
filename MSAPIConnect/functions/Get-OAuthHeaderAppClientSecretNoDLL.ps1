@@ -20,6 +20,7 @@ Resource URI of the Azure AD Application that is registered.
 
 .EXAMPLE
 TODO - Example
+TODO - Line 2
 
 .NOTES
 Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
@@ -28,7 +29,8 @@ Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-
 
 function Get-OAuthHeaderAppClientSecretNoDLL
 {
-	[cmdletbinding()]
+    [OutputType([Hashtable])]
+    [cmdletbinding()]
 	param(
     [Parameter(Mandatory = $True)]
       	[string]$TenantName ,

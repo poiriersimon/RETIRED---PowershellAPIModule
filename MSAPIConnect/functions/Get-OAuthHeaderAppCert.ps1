@@ -23,6 +23,7 @@ Resource URI of the Azure AD Application that is registered.
 
 .EXAMPLE
 TODO - Example
+TODO - Line 2
 
 .NOTES
 #TODO : Check for to add thumbprint option for installed certificate
@@ -30,6 +31,7 @@ TODO - Example
 
 Function Get-OAuthHeaderAppCert
 {
+    [OutputType([Hashtable])]
     [CmdletBinding()]
     param (
     [cmdletbinding()]
@@ -55,7 +57,7 @@ Function Get-OAuthHeaderAppCert
     $authority = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).authorization_endpoint
 
     #Can't sideload the DLL for this one since the AppCert isn't pass correclty.
-    $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
+    $NULL = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
     # Create Authentication Context tied to Azure AD Tenant
     $authContext = New-Object "Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext" -ArgumentList $authority
     $cac = New-Object  Microsoft.IdentityModel.Clients.ActiveDirectory.ClientAssertionCertificate($clientID, $AppCert)

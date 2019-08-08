@@ -9,6 +9,7 @@ Validate than the tenant name is a domain, else add .onmicrosoft.com
 Value to validate
 
 .EXAMPLE
+Validate if the tenant name is correct or add .onmicrosoft.com if it isn't a domain
 Test-TenantName -TenantName Contoso
 
 .NOTES

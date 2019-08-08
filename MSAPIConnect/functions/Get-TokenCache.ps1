@@ -6,6 +6,7 @@ Read the Token Cache from Azure Directory Authentication Librairy that are expos
 Read the Token Cache from Azure Directory Authentication Librairy that are exposed to Powershell
 
 .EXAMPLE
+Retrive Token Cache
 Get-TokenCache
 
 .NOTES
@@ -19,7 +20,7 @@ Function Get-TokenCache
 
 	)
     $AzureADDLL = Get-AzureADDLL
-    $tMod = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
+    $NULL = [System.Reflection.Assembly]::LoadFrom($AzureADDLL)
     $cache = [Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache]::DefaultShared
     if($cache.count -gt 0){
         Return $cache.ReadItems()

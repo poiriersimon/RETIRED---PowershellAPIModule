@@ -6,6 +6,7 @@ Get the UPN for the current logged user
 Get the UPN for the current logged user. This PC need to be Domain-joined
 
 .EXAMPLE
+Return UserPrincipalName for the currently Logged user.
 Get-CurrentUPN
 
 .NOTES

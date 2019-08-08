@@ -12,7 +12,8 @@ You need to specify the Tenant Name, Tenant ID or Registered Domain name on your
 You can choose to leverage EvoSTS (work with both On-Premises and Azure AD) or MicrosoftOnline (Cloud Only)
 
 .EXAMPLE
-Get-TenantLoginEndPoint | Select authorization_endpoint
+Retrieve the Autorization Endpoint for the tenant contoso.com
+Get-TenantLoginEndPoint -TenantName contoso.com | Select authorization_endpoint
 
 .NOTES
 #
