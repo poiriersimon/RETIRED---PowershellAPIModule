@@ -12,7 +12,7 @@ UTC DATE Time Value
 Convert-UTCtoLocal -UTCTime "2019-02-27 1:00:00"
 
 .NOTES
-From : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
+PS5 Version of : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
 #>
 
 function Convert-UTCtoLocal
@@ -23,8 +23,6 @@ function Convert-UTCtoLocal
         [String] $UTCTime
     )
 
-    $strCurrentTimeZone = (Get-TimeZone).StandardName
-    $TZ = [System.TimeZoneInfo]::FindSystemTimeZoneById($strCurrentTimeZone)
-    $LocalTime = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $TZ)
+    $LocalTime = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $(Get-TimeZone))
     Return $LocalTime
 }
