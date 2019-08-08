@@ -13,7 +13,6 @@ Convert-UTCtoLocal -UTCTime "2019-02-27 1:00:00"
 
 .NOTES
 From : https://devblogs.microsoft.com/scripting/powertip-convert-from-utc-to-my-local-time-zone/
-TODO - Remove WMI reference to a .Net reference
 #>
 
 function Convert-UTCtoLocal
@@ -24,7 +23,7 @@ function Convert-UTCtoLocal
         [String] $UTCTime
     )
 
-    $strCurrentTimeZone = (Get-WmiObject win32_timezone).StandardName
+    $strCurrentTimeZone = (Get-TimeZone).StandardName
     $TZ = [System.TimeZoneInfo]::FindSystemTimeZoneById($strCurrentTimeZone)
     $LocalTime = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $TZ)
     Return $LocalTime
