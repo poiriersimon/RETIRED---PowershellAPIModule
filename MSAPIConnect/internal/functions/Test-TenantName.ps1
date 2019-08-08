@@ -1,4 +1,21 @@
-﻿Function Test-TenantName
+﻿<#
+.SYNOPSIS
+Validate than the tenant name is a domain, else add .onmicrosoft.com
+
+.DESCRIPTION
+Validate than the tenant name is a domain, else add .onmicrosoft.com
+
+.PARAMETER TenantName
+Value to validate
+
+.EXAMPLE
+Test-TenantName -TenantName Contoso
+
+.NOTES
+#
+#>
+
+Function Test-TenantName
 {
     [CmdletBinding()]
     Param(

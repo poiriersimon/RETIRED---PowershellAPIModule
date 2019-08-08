@@ -1,4 +1,31 @@
-﻿# Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+﻿<#
+.SYNOPSIS
+Authenticate to Azure AD with Azure Directory Authentication Librairy for an Azure Ad Application leveraging Client Secret Authentication
+
+.DESCRIPTION
+Authenticate to Azure AD with Azure Directory Authentication Librairy for an Azure Ad Application leveraging Client Secret Authentication
+
+.PARAMETER ClientID
+This is the Client ID (Application ID) of the registered Azure AD Application.
+The Application need to have the right permission in your tenant.
+
+.PARAMETER ClientSecret
+If you are leveraging an Azure AD Application with Client Secret authentication, you need to provide the Secret here
+
+.PARAMETER TenantName
+You need to specify the Tenant Name, Tenant ID or Registered Domain name on your Azure or Office 365 Tenant
+
+.PARAMETER ResourceURI
+Resource URI of the Azure AD Application that is registered.
+
+.EXAMPLE
+TODO - Example
+
+.NOTES
+Based on https://www.altitude365.com/2018/09/23/retrieve-and-analyze-office-365-usage-data-with-powershell-and-microsoft-graph-api/
+
+#>
+
 function Get-OAuthHeaderAppClientSecretNoDLL
 {
 	[cmdletbinding()]
@@ -6,18 +33,18 @@ function Get-OAuthHeaderAppClientSecretNoDLL
     [Parameter(Mandatory = $True)]
       	[string]$TenantName ,
     [Parameter(Mandatory = $True)]
-        [string]$clientId,
+        [string]$ClientID,
     [Parameter(Mandatory = $True)]
       	[string]$ClientSecret,
     [Parameter(Mandatory = $True)]
-      	[string]$resourceURI
+      	[string]$ResourceURI
     
     )
     
     $TenantName = Test-TenantName -TenantName $TenantName
 
     #Login Endpoint info
-    $loginURL = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).get_item("token_endpoint")
+    $loginURL = ($(Get-TenantLoginEndPoint -TenantName $TenantName)).token_endpoint
 
     # Get an Oauth 2 access token based on client id, secret and tenant domain
     $body = @{grant_type="client_credentials";resource=$resourceURI;client_id=$ClientID;client_secret=$ClientSecret}

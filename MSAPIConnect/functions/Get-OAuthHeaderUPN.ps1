@@ -1,13 +1,40 @@
-﻿function Get-OAuthHeaderUPN
+﻿<#
+.SYNOPSIS
+Authenticate to Azure AD with Azure Directory Authentication Librairy with your UserPrincipalName
+
+.DESCRIPTION
+Authenticate to Azure AD with Azure Directory Authentication Librairy with your UserPrincipalName and and Azure Ad Application
+
+.PARAMETER ClientID
+This is the Client ID (Application ID) of the registered Azure AD Application.
+The Application need to have the right permission in your tenant.
+
+.PARAMETER RedirectUri
+Redirect URI of the Azure AD Application that is registered.
+
+.PARAMETER ResourceAppIdURI
+Resource URI of the Azure AD Application that is registered.
+
+.PARAMETER UserPrincipalName
+UserPrincipalName of the Admin Account
+
+.EXAMPLE
+TODO - Example
+
+.NOTES
+#
+#>
+
+function Get-OAuthHeaderUPN
 {
 	[cmdletbinding()]
 	param(
     [Parameter(Mandatory = $True)]
-      	[string]$clientId,
+      	[string]$ClientID,
     [Parameter(Mandatory = $True)]
-      	[string]$redirectUri,
+      	[string]$RedirectUri,
     [Parameter(Mandatory = $True)]
-      	[string]$resourceAppIdURI,
+      	[string]$ResourceAppIdURI,
     [Parameter(Mandatory = $False)]
       	[string]$UserPrincipalName
     )

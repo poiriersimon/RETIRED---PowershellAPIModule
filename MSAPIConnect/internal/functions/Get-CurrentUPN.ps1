@@ -1,4 +1,18 @@
-﻿Function Get-CurrentUPN
+﻿<#
+.SYNOPSIS
+Get the UPN for the current logged user
+
+.DESCRIPTION
+Get the UPN for the current logged user. This PC need to be Domain-joined
+
+.EXAMPLE
+Get-CurrentUPN
+
+.NOTES
+#
+#>
+
+Function Get-CurrentUPN
 {
 	[CmdletBinding()]
 	param (

@@ -1,5 +1,22 @@
-﻿#Ref : https://www.michev.info/Blog/Post/1771/hacking-your-way-around-modern-authentication-and-the-powershell-modules-for-office-365
-#Only Support User Connection no Application Connect (As Of : 2019-05)
+﻿<#
+.SYNOPSIS
+Connect to Exchange Online without the Click2Run
+
+.DESCRIPTION
+Connect to Exchange Online without the Click2Run
+
+.PARAMETER UserPrincipalName
+UserPrincipalName of the Admin Account
+
+.EXAMPLE
+Connect-EXOPSSession -UserPrincipalName admin@contoso.com
+
+.NOTES
+Ref : https://www.michev.info/Blog/Post/1771/hacking-your-way-around-modern-authentication-and-the-powershell-modules-for-office-365
+Only Support User Connection no Application Connect (As Of : 2019-05)
+
+#>
+
 Function Connect-EXOPSSession
 {
     [cmdletbinding()]

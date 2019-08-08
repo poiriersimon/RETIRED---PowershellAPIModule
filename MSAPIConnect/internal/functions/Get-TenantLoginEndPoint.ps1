@@ -1,4 +1,24 @@
-﻿Function Get-TenantLoginEndPoint
+﻿<#
+.SYNOPSIS
+Send a Web Request to retrieve well known Tenant Login endpoint
+
+.DESCRIPTION
+Send a Web Request to retrieve well known Tenant Login endpoint
+
+.PARAMETER TenantName
+You need to specify the Tenant Name, Tenant ID or Registered Domain name on your Azure or Office 365 Tenant
+
+.PARAMETER LoginSource
+You can choose to leverage EvoSTS (work with both On-Premises and Azure AD) or MicrosoftOnline (Cloud Only)
+
+.EXAMPLE
+Get-TenantLoginEndPoint | Select authorization_endpoint
+
+.NOTES
+#
+#>
+
+Function Get-TenantLoginEndPoint
 {
     [CmdletBinding()]
     Param(

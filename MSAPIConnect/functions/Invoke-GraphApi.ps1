@@ -1,4 +1,62 @@
-﻿Function Invoke-GraphApi
+﻿<#
+.SYNOPSIS
+Send request to Microsoft Graph API and get Access Token 
+
+.DESCRIPTION
+Send request to Microsoft Graph API and get Access Token
+Can be leveraged against multiple Graph API by specifying the right Resource 
+
+.PARAMETER TenantName
+For Azure AD Application Authentication, you need to specify the Tenant Name, Tenant ID or Registered Domain name on your Azure or Office 365 Tenant
+
+.PARAMETER Resource
+The API ressource to which the request will be sent
+
+.PARAMETER QueryParams
+Additionnal Graph URL to pass to Resource like "alerts"
+Currently, there no validation, so refer to the API docs
+
+.PARAMETER Body
+Optional, Body content to send with the request
+
+.PARAMETER Method
+Optional, Default is GET
+Valide Value Delete, Get, Head, Merge, Options, Patch, Post, Put, Trace
+
+.PARAMETER ClientID
+This is the Client ID (Application ID) of the registered Azure AD Application.
+The Application need to have the right permission in your tenant.
+#TODO = Document the minimal app permission
+
+.PARAMETER ClientSecret
+If you are leveraging an Azure AD Application with Client Secret authentication, you need to provide the Secret here
+
+.PARAMETER CertificatePath
+If you are leveraging an Azure AD Application with Certificate authentication, you need to provide the Certificate Path here
+
+.PARAMETER CertificatePassword
+If you are leveraging an Azure AD Application with Certificate authentication, you need to provide the Certificate Password here to access the private key
+
+.PARAMETER APIVersion
+Optional, default is V1.0
+Specify the API version to which send the request.
+V1.0 or Beta are the current accepted Value
+
+.PARAMETER RedirectUri
+Mandatory for UserPrincipalName Authentication, Optional for Azure AD Application Authentication
+Redirect URI of the Azure AD Application that is registered.
+
+.PARAMETER UserPrincipalName
+UserPrincipalName of the Admin Account
+
+.EXAMPLE
+Invoke-GraphApi -TenantName contoso.com -Resource reports -QueryParams "getEmailActivityUserDetail(period='D180')" -ClientID $ClientID -ClientSecret $ClientSecret
+
+.NOTES
+#
+#>
+
+Function Invoke-GraphApi
 {
     [CmdletBinding(DefaultParameterSetName='UPN')]
     Param(
@@ -56,11 +114,15 @@
         [Parameter(ParameterSetName='ClientCert', Mandatory=$False)]
         [Parameter(ParameterSetName='UPN', Mandatory=$False)]
         [String]
+        [ValidateSet(
+            'V1.0',
+            'beta'
+        )]
         $APIVersion = "v1.0",
         [Parameter(ParameterSetName='ClientCert', Mandatory=$false)]
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$false)]
         [Parameter(ParameterSetName='UPN', Mandatory=$True)]
-      	[string]$redirectUri,
+      	[string]$RedirectUri,
         [Parameter(ParameterSetName='UPN', Mandatory=$False)]
         [string]
         $UserPrincipalName

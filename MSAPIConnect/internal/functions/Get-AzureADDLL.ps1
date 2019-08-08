@@ -1,4 +1,22 @@
-﻿Function Get-AzureADDLL
+﻿<#
+.SYNOPSIS
+Find Azure Directory Authentication Librairy DLL
+
+.DESCRIPTION
+Find Azure Directory Authentication Librairy DLL from the installed module to prevent conflict
+Install AzureAD PS Module if not installed
+
+.PARAMETER InstallPreview
+Switch to force the installation of AzureADPreview Module if no module are found.
+
+.EXAMPLE
+Get-AzureADDLL
+
+.NOTES
+TODO - Add dll in the bin folder and leverage this one if none are found
+#>
+
+Function Get-AzureADDLL
 {
     [CmdletBinding()]
     Param(

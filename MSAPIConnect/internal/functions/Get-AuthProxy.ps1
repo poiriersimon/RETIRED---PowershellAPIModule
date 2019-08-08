@@ -1,4 +1,18 @@
-﻿Function Get-AuthProxy
+﻿<#
+.SYNOPSIS
+Do Proxy Auth with Default Network Credential
+
+.DESCRIPTION
+Do Proxy Auth with Default Network Credential
+
+.EXAMPLE
+Get-AuthProxy
+
+.NOTES
+TODO - Add More scenario and add this as a option to other Function
+#>
+
+Function Get-AuthProxy
 {
 	[CmdletBinding()]
 	param (
