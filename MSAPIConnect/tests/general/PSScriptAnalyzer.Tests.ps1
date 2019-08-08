@@ -1,4 +1,5 @@
-﻿[CmdletBinding()]
+﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "PSAvoidUsingUsernameAndPasswordParams","PSAvoidUsingPlainTextForPassword")]
+[CmdletBinding()]
 Param (
 	[switch]
 	$SkipTest,

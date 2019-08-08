@@ -22,5 +22,6 @@ $global:HelpTestEnumeratedArrays = @(
   "Get-DbaCmObject"       = @("DoNotUse")
 #>
 $global:HelpTestSkipParameterType = @{
-    
+  "Get-GraphSecurityData" = @("RedirectUri","TenantName")
+  "Invoke-GraphApi" = @("RedirectUri")
 }
