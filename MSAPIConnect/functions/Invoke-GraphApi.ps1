@@ -142,7 +142,7 @@ Function Invoke-GraphApi
                 $UPNMismatch = $UserPrincipalName -ne $Script:UPNGraphHeader.UserID
                 $AppIDMismatch = $ClientID -ne $Script:UPNGraphHeader.AppID
                 if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
-                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
+                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh"
                     $Script:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
                 }
             }
@@ -162,7 +162,7 @@ Function Invoke-GraphApi
                 $TokenExpires = ((Get-date ($Script:CSGraphHeader.ExpiresOn)) - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Script:CSGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
-                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
+                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh"
                 $Script:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
                 }
             }
@@ -182,7 +182,7 @@ Function Invoke-GraphApi
                 $TokenExpires = ($Script:CCGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
                 $AppIDMismatch = $ClientID -ne $Script:CCGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
-                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
+                    Write-PSFMessage -Level Host -Message "Authentication need to be refresh"
                     $Script:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
                 }
             }
@@ -233,7 +233,7 @@ Function Invoke-GraphApi
     }
     $NextLink = $GraphResponse.'@odata.nextLink'
     # Need to loop the requests because only 100 results are returned each time
-    While ($NULL -eq $NextLink)
+    While ($NULL -ne $NextLink)
     {
         $GraphResponse = Invoke-RestMethod -Uri $NextLink -Headers $GraphtHeader -Method Get
         $NextLink = $GraphResponse.'@odata.nextLink'
