@@ -10,7 +10,7 @@ For Azure AD Application Authentication, you need to specify the Tenant Name, Te
 
 .PARAMETER Query
 Optional, Additionnal Graph URL to pass to https://graph.microsoft.com/V1.0/security like "alerts", if no value securescores are used
-Currently, there no validation, so refer to the docs.microsoft.com API 
+Currently, there no validation, so refer to the docs.microsoft.com API
 #TODO - add url for docs
 
 .PARAMETER ClientID

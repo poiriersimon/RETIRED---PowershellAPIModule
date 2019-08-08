@@ -39,24 +39,24 @@ Function Connect-EXOPSSession
         $redirectUri = "urn:ietf:wg:oauth:2.0:oob"
         $clientid = "a0c73c16-a7e3-4564-9a95-2bdf47383716"
 
-        if($Global:UPNEXOHeader){
+        if($Script:UPNEXOHeader){
             # Setting DateTime to Universal time to work in all timezones
             $DateTime = (Get-Date).ToUniversalTime()
 
             # If the authToken exists checking when it expires
-            $TokenExpires = ($Global:UPNEXOHeader.ExpiresOn.datetime - $DateTime).Minutes
-            $UPNMismatch = $UserPrincipalName -ne $Global:UPNEXOHeader.UserID
-            $AppIDMismatch = $ClientID -ne $Global:UPNEXOHeader.AppID
+            $TokenExpires = ($Script:UPNEXOHeader.ExpiresOn.datetime - $DateTime).Minutes
+            $UPNMismatch = $UserPrincipalName -ne $Script:UPNEXOHeader.UserID
+            $AppIDMismatch = $ClientID -ne $Script:UPNEXOHeader.AppID
             if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
                 Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
-                $Global:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                $Script:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
             }
         }
         # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
         else {
-            $Global:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+            $Script:UPNEXOHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
         }
-        $Result = $Global:UPNEXOHeader
+        $Result = $Script:UPNEXOHeader
 
         $Authorization =  $Result.Authorization
         $Password = ConvertTo-SecureString -AsPlainText $Authorization -Force

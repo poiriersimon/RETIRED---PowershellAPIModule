@@ -1,10 +1,10 @@
 ﻿<#
 .SYNOPSIS
-Send request to Microsoft Graph API and get Access Token 
+Send request to Microsoft Graph API and get Access Token
 
 .DESCRIPTION
 Send request to Microsoft Graph API and get Access Token
-Can be leveraged against multiple Graph API by specifying the right Resource 
+Can be leveraged against multiple Graph API by specifying the right Resource
 
 .PARAMETER TenantName
 For Azure AD Application Authentication, you need to specify the Tenant Name, Tenant ID or Registered Domain name on your Azure or Office 365 Tenant
@@ -132,64 +132,64 @@ Function Invoke-GraphApi
     {
         "UPN"
         {
-            if($Global:UPNGraphHeader){
+            if($Script:UPNGraphHeader){
                 # Setting DateTime to Universal time to work in all timezones
                 $DateTime = (Get-Date).ToUniversalTime()
 
                 # If the authToken exists checking when it expires
-                $TokenExpires = ($Global:UPNGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
-                $UPNMismatch = $UserPrincipalName -ne $Global:UPNGraphHeader.UserID
-                $AppIDMismatch = $ClientID -ne $Global:UPNGraphHeader.AppID
+                $TokenExpires = ($Script:UPNGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
+                $UPNMismatch = $UserPrincipalName -ne $Script:UPNGraphHeader.UserID
+                $AppIDMismatch = $ClientID -ne $Script:UPNGraphHeader.AppID
                 if($TokenExpires -le 0 -or $UPNMismatch -or $AppIDMismatch){
                     Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
-                    $Global:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                    $Script:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
                 }
             }
             # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
             else {
-                $Global:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
+                $Script:UPNGraphHeader = Get-OAuthHeaderUPN -clientId $ClientID -redirectUri $redirectUri -resourceAppIdURI $resourceURI -UserPrincipalName $UserPrincipalName
             }
-            $GraphHeader = $Global:UPNGraphHeader
+            $GraphHeader = $Script:UPNGraphHeader
         }
         "ClientSecret"
         {
-            if($Global:CSGraphHeader){
+            if($Script:CSGraphHeader){
                 # Setting DateTime to Universal time to work in all timezones
                 $DateTime = (Get-Date).ToUniversalTime()
 
                 # If the authToken exists checking when it expires
-                $TokenExpires = ((Get-date ($Global:CSGraphHeader.ExpiresOn)) - $DateTime).Minutes
-                $AppIDMismatch = $ClientID -ne $Global:CSGraphHeader.AppID
+                $TokenExpires = ((Get-date ($Script:CSGraphHeader.ExpiresOn)) - $DateTime).Minutes
+                $AppIDMismatch = $ClientID -ne $Script:CSGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
                     Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
-                $Global:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+                $Script:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
                 }
             }
             # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
             else {
-                $Global:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
+                $Script:CSGraphHeader = Get-OAuthHeaderAppClientSecretNoDLL -TenantName $TenantName -clientId $ClientID -ClientSecret $ClientSecret -resourceURI $ResourceURI
             }
-            $GraphHeader = $Global:CSGraphHeader
+            $GraphHeader = $Script:CSGraphHeader
         }
         "ClientCert"
         {
-            if($Global:CCGraphHeader){
+            if($Script:CCGraphHeader){
                 # Setting DateTime to Universal time to work in all timezones
                 $DateTime = (Get-Date).ToUniversalTime()
 
                 # If the authToken exists checking when it expires
-                $TokenExpires = ($Global:CCGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
-                $AppIDMismatch = $ClientID -ne $Global:CCGraphHeader.AppID
+                $TokenExpires = ($Script:CCGraphHeader.ExpiresOn.datetime - $DateTime).Minutes
+                $AppIDMismatch = $ClientID -ne $Script:CCGraphHeader.AppID
                 if($TokenExpires -le 0 -or $AppIDMismatch){
                     Write-PSFMessage -Level Host -Message "Authentication need to be refresh" -ForegroundColor Yellow
-                    $Global:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+                    $Script:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
                 }
             }
             # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
             else {
-                $Global:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
+                $Script:CCGraphHeader = Get-OAuthHeaderAppCert -ClientID $ClientID -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword -TenantName $TenantName -resourceURI $ResourceURI
             }
-            $GraphHeader = $Global:CCGraphHeader
+            $GraphHeader = $Script:CCGraphHeader
         }
     }
 
@@ -225,14 +225,14 @@ Function Invoke-GraphApi
         }
 
     # Return the data
-    if($GraphResponse.Value -eq $null){
+    if($NULL -eq $GraphResponse.Value){
         $Items = $GraphResponse
     }else{
         $Items = $GraphResponse.Value
     }
     $NextLink = $GraphResponse.'@odata.nextLink'
     # Need to loop the requests because only 100 results are returned each time
-    While ($NextLink -ne $null)
+    While ($NULL -eq $NextLink)
     {
         $GraphResponse = Invoke-RestMethod -Uri $NextLink -Headers $GraphtHeader -Method Get
         $NextLink = $GraphResponse.'@odata.nextLink'

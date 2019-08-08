@@ -29,22 +29,22 @@ Function Connect-Intune{
     [string]$redirectUri = "urn:ietf:wg:oauth:2.0:oob"
     [string]$resourceUri = "https://graph.microsoft.com"
 
-    if($Global:IntuneAuthToken){
+    if($Script:IntuneAuthToken){
         # Setting DateTime to Universal time to work in all timezones
         $DateTime = (Get-Date).ToUniversalTime()
 
         # If the authToken exists checking when it expires
-        $TokenExpires = ($Global:IntuneAuthToken.ExpiresOn.datetime - $DateTime).Minutes
+        $TokenExpires = ($Script:IntuneAuthToken.ExpiresOn.datetime - $DateTime).Minutes
 
             if($TokenExpires -le 0){
 
             Write-PSFMessage -Level Host -Message "Authentication Token expired" $TokenExpires "minutes ago" -ForegroundColor Yellow
-            $Global:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
+            $Script:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
             }
     }
     # Authentication doesn't exist, calling Get-GraphAuthHeaderBasedOnUPN function
     else {
-        $Global:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
+        $Script:IntuneAuthToken = Get-OAuthHeaderUPN -clientId $clientid -redirectUri $redirectUri -resourceAppIdURI $resourceUri -UserPrincipalName $UserPrincipalName
     }
-    $Global:IntuneAuthToken
+    $Script:IntuneAuthToken
 }
