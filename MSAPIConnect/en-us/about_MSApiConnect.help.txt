@@ -8,5 +8,5 @@ LONG DESCRIPTION
 	Powershell Module to connect to ADAL, to group API Authentication and connectivity cmdlet (AzureAD, Graph, EWS, etc.)
 
 KEYWORDS
-	MSApiConnect, ADAL, MFA, Powershell, GraphAPI, Exchange Online, InTune, API, Office365, Management, Token, Graph, EXO, Office 365
+	MSApiConnect, ADAL, MFA, Powershell, GraphAPI, Exchange Online, InTune, API, Office365, Management, Token, Graph, EXO, Office 365, O365
 	
