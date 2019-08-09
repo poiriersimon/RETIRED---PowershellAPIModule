@@ -45,6 +45,7 @@ https://docs.microsoft.com/en-us/office/office-365-management-api/get-started-wi
 
 Function Invoke-O365ServiceCommunication
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "")]
     [CmdletBinding(DefaultParameterSetName='ClientSecret')]
     Param(
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]

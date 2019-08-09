@@ -59,6 +59,8 @@ Invoke-GraphApi -TenantName contoso.com -Resource reports -QueryParams "getEmail
 
 Function Invoke-GraphApi
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingUsernameAndPasswordParams", "")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "")]
     [CmdletBinding(DefaultParameterSetName='UPN')]
     Param(
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]
