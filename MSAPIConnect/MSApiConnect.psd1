@@ -62,7 +62,7 @@
 		PSData = @{
 	
 			# Tags applied to this module. These help with module discovery in online galleries.
-			Tags = @('ADAL','MFA','Powershell','GraphAPI','ExchangeOnline','InTune','API','Office365','Management','Token')
+			Tags = @('ADAL','MFA','Powershell','GraphAPI','ExchangeOnline','Exchange','InTune','API','O365','Office365','Management','Token','Graph','EXO')
 	
 			# A URL to the license for this module.
 			LicenseUri = 'https://github.com/poiriersimon/PowershellAPIModule/blob/master/LICENSE'

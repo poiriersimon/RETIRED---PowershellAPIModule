@@ -20,6 +20,7 @@ Only Support User Connection no Application Connect (As Of : 2019-05)
 
 Function Connect-EXOPSSession
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "")]
     [cmdletbinding()]
     param (
     [parameter(Mandatory=$False)]

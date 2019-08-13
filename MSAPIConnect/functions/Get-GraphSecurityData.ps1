@@ -48,6 +48,8 @@ Get-GraphSecurityData -UserPrincipalName admin@contoso.com -ClientID $ClientIDUP
 #>
 
 function Get-GraphSecurityData {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingUsernameAndPasswordParams", "")]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "")]
     [CmdletBinding(DefaultParameterSetName='UPN')]
     param (
         [Parameter(ParameterSetName='ClientSecret', Mandatory=$True)]

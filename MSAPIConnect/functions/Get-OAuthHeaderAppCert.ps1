@@ -31,6 +31,7 @@ TODO - Line 2
 
 Function Get-OAuthHeaderAppCert
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword", "")]
     [OutputType([Hashtable])]
     [CmdletBinding()]
     param (

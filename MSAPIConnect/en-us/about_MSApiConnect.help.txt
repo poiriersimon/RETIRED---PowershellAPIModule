@@ -2,10 +2,11 @@
 	about_MSApiConnect
 	
 SHORT DESCRIPTION
-	Explains how to use the MSApiConnect powershell module
+	The module can be used to get an ADAL Token and send call to various Microsoft API.
 	
 LONG DESCRIPTION
-	<Insert Content here>
+	Powershell Module to connect to ADAL, to group API Authentication and connectivity cmdlet (AzureAD, Graph, EWS, etc.)
 
 KEYWORDS
-	MSApiConnect
+	MSApiConnect, ADAL, MFA, Powershell, GraphAPI, Exchange Online, InTune, API, Office365, Management, Token, Graph, EXO, Office 365, O365
+	
