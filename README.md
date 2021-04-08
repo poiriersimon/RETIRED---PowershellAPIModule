@@ -1,4 +1,7 @@
-﻿# Description
+﻿# IMPORTANT NOTE
+Microsoft have announced the end of support for ADAL in June 2022 and I have stop updating this module, you should use MSAL or MSAL.PS instead! Sorry for the inconveniance. 
+
+# Description
 
 Powershell Module to connect to ADAL and to group API Authentication and connectivity cmdlet (AzureAD, Graph, EWS, etc.)
 
